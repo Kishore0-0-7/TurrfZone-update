@@ -38,6 +38,31 @@ namespace turfmanagement.Controllers
                     return BadRequest(new { message = "Invalid date format" });
                 }
 
+                // Ensure the Slots table has the necessary constraints
+                // This will silently proceed if the constraint already exists
+                try
+                {
+                    string createConstraint = @"
+                        DO $$
+                        BEGIN
+                            IF NOT EXISTS (
+                                SELECT 1
+                                FROM pg_constraint
+                                WHERE conname = 'slot_date_time_unique'
+                            ) THEN
+                                ALTER TABLE Slots ADD CONSTRAINT slot_date_time_unique UNIQUE (SlotDate, SlotTime);
+                            END IF;
+                        END $$;
+                    ";
+                    using var cmdConstraint = new NpgsqlCommand(createConstraint, conn);
+                    cmdConstraint.Transaction = tran;
+                    cmdConstraint.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // Ignore errors with constraint creation - it's just a safety measure
+                }
+
                 // Insert booking
                 string insertBooking = @"
                     INSERT INTO Bookings (UserId, BookingDate, SlotTimeFrom, SlotTimeTo, Amount)
@@ -58,17 +83,64 @@ namespace turfmanagement.Controllers
                 // Insert each slot into Slots table
                 try
                 {
-                    // Parse times - frontend sends "2 PM" format
-                    DateTime from = DateTime.ParseExact(dto.SlotTimeFrom, "h tt", CultureInfo.InvariantCulture);
-                    DateTime to = DateTime.ParseExact(dto.SlotTimeTo, "h tt", CultureInfo.InvariantCulture);
-
+                    Console.WriteLine($"⏰ Parsing time slots from {dto.SlotTimeFrom} to {dto.SlotTimeTo}");
+                    
+                    // Parse times - frontend sends "2 PM" format or "12 AM" format
+                    // Create a reference date for parsing
+                    DateTime referenceDate = DateTime.Today; // Use today as base
+                    
+                    // Parse from time
+                    DateTime from = DateTime.ParseExact(
+                        dto.SlotTimeFrom, 
+                        new[] { "h tt", "hh tt" }, // Support both "2 PM" and "12 AM" formats
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None);
+                    
+                    // Special handling for "12 AM" as end time
+                    DateTime to;
+                    if (dto.SlotTimeTo == "12 AM")
+                    {
+                        // If end time is 12 AM, set it to midnight (next day)
+                        to = referenceDate.AddDays(1).Date; // Midnight of next day
+                    }
+                    else
+                    {
+                        // Normal parsing for other times
+                        to = DateTime.ParseExact(
+                            dto.SlotTimeTo, 
+                            new[] { "h tt", "hh tt" }, // Support both formats
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.None);
+                    }
+                    
+                    // Only keep the time parts with the reference date
+                    from = referenceDate.Date.Add(from.TimeOfDay);
+                    if (dto.SlotTimeTo != "12 AM") // Only adjust non-midnight end times
+                    {
+                        to = referenceDate.Date.Add(to.TimeOfDay);
+                    }
+                    
+                    // Adjust if end time is earlier in the day than start time
+                    // This means booking spans midnight
+                    if (to <= from && dto.SlotTimeTo != "12 AM")
+                    {
+                        to = to.AddDays(1);
+                    }
+                    
+                    Console.WriteLine($"📊 Parsed times: From={from:yyyy-MM-dd HH:mm}, To={to:yyyy-MM-dd HH:mm}");
+                    
+                    // Generate the time slots between from and to
+                    List<string> timeSlots = new List<string>();
                     for (DateTime time = from; time < to; time = time.AddHours(1))
                     {
                         string timeStr = time.ToString("h tt"); // Format as "2 PM" to match frontend
-
+                        timeSlots.Add(timeStr);
+                        
                         string insertSlot = @"
                             INSERT INTO Slots (SlotDate, SlotTime, Status)
-                            VALUES (@date, @time, 'Unavailable');
+                            VALUES (@date, @time, 'Unavailable')
+                            ON CONFLICT (SlotDate, SlotTime) DO UPDATE
+                            SET Status = 'Unavailable';
                         ";
 
                         using var cmdSlot = new NpgsqlCommand(insertSlot, conn);
@@ -77,11 +149,22 @@ namespace turfmanagement.Controllers
                         cmdSlot.Transaction = tran;
                         cmdSlot.ExecuteNonQuery();
                     }
+                    
+                    Console.WriteLine($"✅ Marked slots as unavailable: {string.Join(", ", timeSlots)}");
                 }
                 catch (FormatException ex)
                 {
                     tran.Rollback();
+                    Console.WriteLine($"❌ Time format error: {ex.Message}");
+                    Console.WriteLine($"🔍 Attempted to parse: From=\"{dto.SlotTimeFrom}\", To=\"{dto.SlotTimeTo}\"");
                     return BadRequest(new { message = $"Invalid time format: {ex.Message}" });
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    Console.WriteLine($"❌ Slot insertion error: {ex.Message}");
+                    Console.WriteLine($"🔍 Attempted to process slots: From=\"{dto.SlotTimeFrom}\", To=\"{dto.SlotTimeTo}\"");
+                    return BadRequest(new { message = $"Error processing time slots: {ex.Message}" });
                 }
 
                 // Update user's LastBookingDate
@@ -105,6 +188,8 @@ namespace turfmanagement.Controllers
             {
                 tran.Rollback();
                 Console.WriteLine($"❌ Booking failed: {ex.Message}");
+                Console.WriteLine($"🔍 Exception details: {ex}");
+                Console.WriteLine($"📄 Booking data: UserId={dto.UserId}, Date={dto.BookingDate}, From={dto.SlotTimeFrom}, To={dto.SlotTimeTo}");
                 return StatusCode(500, new { message = "Booking failed", error = ex.Message });
             }
         }

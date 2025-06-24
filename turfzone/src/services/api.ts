@@ -192,9 +192,15 @@ export const formatDateForAPI = (date: Date): string => {
 
 // Helper function to format time for API calls
 export const formatTimeForAPI = (timeStr: string): string => {
-  // Simply clean the time string and return it as-is
-  // Frontend sends "2 PM", backend expects "2 PM" 
+  // Clean the time string and handle special cases
+  // Frontend sends "12 AM", "2 PM", backend expects "12 AM", "2 PM"
   const cleanTime = timeStr.replace(" (Next Day)", "");
+  
+  // Ensure proper handling of 12 AM/12 PM cases
+  if (cleanTime === "12 AM" || cleanTime === "12 PM") {
+    return cleanTime;
+  }
+  
   return cleanTime;
 };
 

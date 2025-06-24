@@ -289,11 +289,23 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
       const userId = 1; // Fixed ID that works with backend int32 validation
       
       // Construct bookingData with PascalCase keys for backend compatibility
+      // Special handling for midnight (12 AM) end time
+      // If toTime is 12 AM, we need to handle it specially
+      let endTime = formatTimeForAPI(toTime);
+      
+      // Log the bookingData for debugging
+      console.log('🕒 Time values:', {
+        fromRaw: fromTime,
+        toRaw: toTime,  
+        fromFormatted: formatTimeForAPI(fromTime),
+        toFormatted: endTime
+      });
+      
       const bookingData = {
         UserId: userId,
         BookingDate: formatDateForAPI(selectedDate), // "YYYY-MM-DD"
-        SlotTimeFrom: formatTimeForAPI(fromTime),    // "2 PM"
-        SlotTimeTo: formatTimeForAPI(toTime),        // "5 PM"
+        SlotTimeFrom: formatTimeForAPI(fromTime),    // e.g. "2 PM"
+        SlotTimeTo: endTime,                        // e.g. "5 PM" or "12 AM"
         Amount: sorted.length * 600
       };
 
@@ -575,9 +587,16 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                                 }
                                 
                                 const selected = [];
+                                
+                                // Select all slots from start to end (non-inclusive of end time)
                                 for (let j = startSlotIndex; j < i; j++) {
                                   selected.push(j);
                                 }
+                                
+                                // Debug log the selection
+                                console.log(`⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`);
+                                console.log(`🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`);
+                                
                                 setSelectedSlots(selected);
                                 setEndSlotIndex(i);
                                 setShowEndTimePopup(false);
@@ -605,9 +624,16 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                               }
                               
                               const selected = [];
+                              
+                              // Select all slots from start to end (non-inclusive of end time)
                               for (let j = startSlotIndex; j < i; j++) {
                                 selected.push(j);
                               }
+                              
+                              // Debug log the selection
+                              console.log(`⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`);
+                              console.log(`🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`);
+                              
                               setSelectedSlots(selected);
                               setEndSlotIndex(i);
                               setShowEndTimePopup(false);
