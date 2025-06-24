@@ -1,6 +1,6 @@
 import './Hero.css';
 
-function Hero({ onScrollClick }: { onScrollClick: () => void }) {
+function Hero() {
   return (
     <div className="hero">
       {/* <div className="overlay"></div>

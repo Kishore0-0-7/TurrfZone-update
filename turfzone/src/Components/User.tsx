@@ -3,7 +3,7 @@ import "./User.css"; // Assuming you have a CSS file for styling
 
 const User = () => {
   const location = useLocation();
-  const { no, date, name, phone, upcoming } = location.state || {};
+  const { date, name, phone, upcoming } = location.state || {};
   const navigate = useNavigate();
 
 

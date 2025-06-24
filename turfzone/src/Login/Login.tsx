@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from '../firebase/config';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import Logo from "../assets/logo.png";
 import "./Login.css";
 
@@ -25,7 +25,7 @@ function Login() {
   const [currentStep, setCurrentStep] = useState<'initial' | 'phone-verify' | 'username'>('initial');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  // const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [recaptchaVerified, setRecaptchaVerified] = useState(false);
   const [otpTimer, setOtpTimer] = useState(300); // 5 minutes in seconds
   const [timerActive, setTimerActive] = useState(false);
@@ -191,8 +191,8 @@ function Login() {
       console.log("Sending OTP to phone:", phoneNumber);
       
       try {
-        const confirmation = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-        setConfirmationResult(confirmation);
+        await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        // setConfirmationResult(confirmation);
         console.log("OTP sent successfully via Firebase");
       } catch (firebaseError) {
         console.log("Firebase OTP failed, proceeding with dummy OTP:", firebaseError);
@@ -327,8 +327,8 @@ function Login() {
       console.log("Resending OTP to phone:", phoneNumber);
       
       try {
-        const confirmation = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-        setConfirmationResult(confirmation);
+        await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        // setConfirmationResult(confirmation);
         console.log("OTP resent successfully via Firebase");
       } catch (firebaseError) {
         console.log("Firebase OTP failed, proceeding with dummy OTP:", firebaseError);

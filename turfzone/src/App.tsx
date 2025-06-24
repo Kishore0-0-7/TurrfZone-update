@@ -30,9 +30,9 @@ function App() {
   }, []);
 
   // Scroll to Second Page when button is clicked
-  const scrollToSecondPage = () => {
-    secondPageRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // const scrollToSecondPage = () => {
+  //   secondPageRef.current?.scrollIntoView({ behavior: "smooth" });
+  // };
 
   // Trigger scroll to Third Page from Second Page (user action)
   const scrollToThirdPage = (date: Date) => {
@@ -77,7 +77,7 @@ function App() {
           element={
             <>
               <Hedder />
-              <Hero onScrollClick={scrollToSecondPage} />
+              <Hero />
               <div ref={secondPageRef}>
                 <Secondpage onScrollToThirdPage={scrollToThirdPage} />
               </div>
