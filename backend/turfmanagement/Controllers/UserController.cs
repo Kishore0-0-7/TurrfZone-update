@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿﻿using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using turfmanagement.Connection;
 
@@ -78,7 +78,7 @@ namespace turfmanagement.Controllers
     public class UserDto
     {
         public string PhoneNumber { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 
 }

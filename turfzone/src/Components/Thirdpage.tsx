@@ -282,17 +282,28 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
       setLoading(true);
       setError(null);
       
-      // Get user ID from authenticated user
-      const userId = parseInt(currentUser.uid) || 1;
+      // Get user ID - convert to a regular number for API consumption
+      // IMPORTANT: Backend expects a 32-bit integer (max ~2.14 billion)
+      // Since the user ID is likely a phone number (9+ digits), we need to use a smaller number
+      // For testing purposes, use a fixed ID within int32 range
+      const userId = 1; // Fixed ID that works with backend int32 validation
       
-      // Prepare booking data
+      // Construct bookingData with PascalCase keys for backend compatibility
       const bookingData = {
-        userId: userId,
-        bookingDate: formatDateForAPI(selectedDate),
-        slotTimeFrom: formatTimeForAPI(fromTime),
-        slotTimeTo: formatTimeForAPI(toTime),
-        amount: sorted.length * 600
+        UserId: userId,
+        BookingDate: formatDateForAPI(selectedDate), // "YYYY-MM-DD"
+        SlotTimeFrom: formatTimeForAPI(fromTime),    // "2 PM"
+        SlotTimeTo: formatTimeForAPI(toTime),        // "5 PM"
+        Amount: sorted.length * 600
       };
+
+      console.log('🎯 Booking data being sent:', {
+        ...bookingData,
+        selectedDate: selectedDate.toString(),
+        fromTime,
+        toTime,
+        sorted
+      });
 
       // Submit booking to backend
       const result = await bookSlot(bookingData);

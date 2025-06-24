@@ -8,11 +8,11 @@ export interface SlotDto {
 }
 
 export interface BookingRequest {
-  userId: number;
-  bookingDate: string;
-  slotTimeFrom: string;
-  slotTimeTo: string;
-  amount: number;
+  UserId: number;
+  BookingDate: string;
+  SlotTimeFrom: string;
+  SlotTimeTo: string;
+  Amount: number;
 }
 
 export interface BookingResponse {
@@ -43,26 +43,33 @@ export interface UserRegisterResponse {
 // Get slots with exceptions (booked/maintenance slots) for a specific date or all upcoming
 export const getSlotExceptions = async (): Promise<SlotDto[]> => {
   try {
+    console.log('📋 Fetching all slot exceptions...');
     const response = await fetch(`${API_BASE_URL}/slots/exceptions`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    const result = await response.json();
+    console.log(`📊 Found ${result.length} total exception slots`);
+    return result;
   } catch (error) {
     console.error('Error fetching slot exceptions:', error);
     throw error;
   }
 };
 
-// Book a slot
-export const bookSlot = async (bookingData: BookingRequest): Promise<BookingResponse> => {
+// Add maintenance slot
+export const addMaintenanceSlot = async (slotDate: string, slotTime: string): Promise<any> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/booking/book`, {
+    console.log(`🔧 Adding maintenance slot for ${slotDate} at ${slotTime}`);
+    const response = await fetch(`${API_BASE_URL}/slots/maintenance`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(bookingData),
+      body: JSON.stringify({
+        slotDate,
+        slotTime
+      }),
     });
     
     const result = await response.json();
@@ -71,6 +78,69 @@ export const bookSlot = async (bookingData: BookingRequest): Promise<BookingResp
       throw new Error(result.message || `HTTP error! status: ${response.status}`);
     }
     
+    return result;
+  } catch (error) {
+    console.error('Error adding maintenance slot:', error);
+    throw error;
+  }
+};
+
+// Remove slot
+export const removeSlot = async (slotId: number): Promise<any> => {
+  try {
+    console.log(`🗑️ Removing slot with ID: ${slotId}`);
+    const response = await fetch(`${API_BASE_URL}/slots/${slotId}`, {
+      method: 'DELETE',
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || `HTTP error! status: ${response.status}`);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error removing slot:', error);
+    throw error;
+  }
+};
+
+// Book a slot
+export const bookSlot = async (bookingData: BookingRequest): Promise<BookingResponse> => {
+  try {
+    // Ensure values are in the correct format for the backend
+    // UserId MUST be a 32-bit integer (max value: 2,147,483,647)
+    // If larger values like phone numbers are used, they must be truncated
+    const payload = {
+      UserId: Math.min(Number(bookingData.UserId), 2147483647),  // Ensure it's within int32 range
+      BookingDate: bookingData.BookingDate, // Format: "YYYY-MM-DD"
+      SlotTimeFrom: bookingData.SlotTimeFrom,
+      SlotTimeTo: bookingData.SlotTimeTo,
+      Amount: Number(bookingData.Amount)    // Ensure it's a number
+    };
+    
+    console.log('📤 Sending booking request:', payload);
+    
+    const response = await fetch(`${API_BASE_URL}/booking/book`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    const result = await response.json();
+    console.log('📥 Backend response:', result);
+    console.log('📊 Response status:', response.status);
+    
+    if (!response.ok) {
+      // Extract detailed error information for debugging
+      const errorDetails = result.errors ? JSON.stringify(result.errors) : '';
+      const errorMessage = result.message || result.error || `HTTP error! status: ${response.status}${errorDetails ? ' - ' + errorDetails : ''}`;
+      console.error('Error details:', result);
+      throw new Error(errorMessage);
+    }
     return result;
   } catch (error) {
     console.error('Error booking slot:', error);
@@ -83,6 +153,9 @@ export const getSlotsByDate = async (date: Date): Promise<SlotDto[]> => {
   try {
     const formattedDate = formatDateForAPI(date);
     const url = `${API_BASE_URL}/slots/date/${formattedDate}`;
+    
+    console.log(`📅 Fetching slots for date: ${formattedDate}`);
+    console.log(`🔗 Request URL: ${url}`);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -99,6 +172,7 @@ export const getSlotsByDate = async (date: Date): Promise<SlotDto[]> => {
     }
     
     const result = await response.json();
+    console.log(`📊 Found ${result.length} unavailable slots for ${formattedDate}:`, result);
     return result;
   } catch (error) {
     console.error('Error fetching slots by date:', error);
@@ -108,12 +182,18 @@ export const getSlotsByDate = async (date: Date): Promise<SlotDto[]> => {
 
 // Helper function to format date for API calls
 export const formatDateForAPI = (date: Date): string => {
-  return date.toISOString().split('T')[0];
+  // Use local date components to avoid timezone issues
+  // Format must be "YYYY-MM-DD" for the backend to parse correctly
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 // Helper function to format time for API calls
 export const formatTimeForAPI = (timeStr: string): string => {
-  // Convert "12 AM" format to "12 AM" format (keep as is for backend compatibility)
+  // Simply clean the time string and return it as-is
+  // Frontend sends "2 PM", backend expects "2 PM" 
   const cleanTime = timeStr.replace(" (Next Day)", "");
   return cleanTime;
 };
