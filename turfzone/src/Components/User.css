@@ -1,0 +1,131 @@
+.user-container {
+  font-family: sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+.user-header {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.user-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.user-details p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.user-details span {
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+.total-booking {
+  text-align: right;
+}
+
+.total-booking p:last-child {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.user-tables {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.user-table {
+  width: 100%;
+  max-width: 48%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  font-size: 16px;
+}
+
+.user-table th {
+  background-color: #006400;
+  color: white;
+  padding: 12px;
+  border: 3px solid white;
+  text-align: center;
+}
+
+.user-table td {
+  background-color: #D6D6D6;
+  padding: 12px;
+  border-right: 3px solid black;
+  text-align: center;
+}
+
+.user-table td:last-child {
+  border-right: none;
+}
+
+.user-table tr {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.user-table td.upcoming {
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .user-tables {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-table {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-details p {
+    font-size: 18px;
+  }
+
+  .total-booking p:last-child {
+    font-size: 28px;
+  }
+
+  .user-table th,
+  .user-table td {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-header {
+    font-size: 22px;
+  }
+
+  .user-details {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .user-tables {
+    flex-direction: column;
+  }
+
+  .user-table th,
+  .user-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

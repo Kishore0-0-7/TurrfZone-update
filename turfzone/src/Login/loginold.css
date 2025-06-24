@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Rajdhani', sans-serif;
+  background-color: white;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.overall {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Left Side */
+.left-log{
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.logo-image {
+  width: 1000px;
+  height: 700px;
+  /* height: auto; */
+  /* max-width: 600px; */
+  
+}
+
+/* Right Side */
+.right-log{
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+.form{
+  margin-right:100px ;
+}
+
+.login-form {
+  
+  height: 700px;
+  width: 500px;
+  background-color: #2e2e2e;
+  padding: 40px 30px;
+  border-radius: 12px;
+  font-family: Titillium Web;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  gap: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  align-items: stretch;          /* ✅ Make children stretch naturally */
+  justify-content: center;       /* ✅ Center content vertically */ 
+}
+.lables{
+  /* background-color: #2e2e2e;
+  padding: 40px 30px;
+  border-radius: 12px; */
+  font-family: Titillium Web;
+  display: flex;
+  flex-direction: column;
+  /* color: white; */
+  gap: 20px;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); */
+  align-items: stretch;    
+  margin-left:20px ;      /* ✅ Make children stretch naturally */
+  justify-content: center; 
+}
+
+.login-form h2 {
+  text-align: center;
+  font-size: 40px;
+  font-family: Titillium Web;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.login-form label {
+  font-size: 24px;
+  font-family: Titillium Web;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.login-form input {
+  /* padding: 10px; */
+  border-radius: 10px;
+  border: none;
+  width: 400px;
+  height: 50px;
+  background-color: #666;
+  color: white;
+  font-size: 14px;
+ 
+  /* margin-bottom: 10px; */
+}
+
+.login-form input[type="email"] {
+  padding-left: 10px;
+  font-size: 16px;
+}
+
+.login-form button {
+  padding: 10px;
+  font-family: Titillium Web;
+  border: none;
+  background-color: white;
+  color: black;
+  font-size: 24px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+
+  width: 150px;
+  height: 50px;            /* ✅ Button takes only required width */
+  align-self: center;            /* ✅ Center the button horizontally */
+  /* padding: 10px 20px;            ✅ Adjust padding for better look */
+
+
+}
+
+.login-form button:hover {
+  background-color: #e0e0e0;
+}
+
+/* OTP Verification */
+.recaptcha-container {
+  margin: 20px auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 16px;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.back-button {
+  background-color: #666 !important;
+  color: white !important;
+  margin-top: 10px !important;
+}
+
+.back-button:hover {
+  background-color: #555 !important;
+}
+
+.login-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
+/* Message Container */
+.message-container {
+  background-color: #444;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.note-message {
+  color: #ffc107;
+  font-style: italic;
+  font-size: 15px;
+  margin-top: 15px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .overall {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .left, .right {
+    width: 100%;
+    height: auto;
+    justify-content: center;
+  }
+
+  .logo-image {
+    width: 70%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .login-form {
+    width: 90%;
+    max-width: 360px;
+    margin-top: 30px;
+  }
+}
