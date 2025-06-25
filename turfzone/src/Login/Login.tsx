@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from '../firebase/config';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth } from "../firebase/config";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import Logo from "../assets/logo.png";
 import "./Login.css";
 
@@ -13,7 +13,7 @@ declare global {
 }
 
 // API base URL
-const API_BASE_URL = 'http://localhost:5125/api';
+const API_BASE_URL = "http://localhost:5125/api";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -22,7 +22,9 @@ function Login() {
     otp: "",
   });
 
-  const [currentStep, setCurrentStep] = useState<'initial' | 'phone-verify' | 'username'>('initial');
+  const [currentStep, setCurrentStep] = useState<
+    "initial" | "phone-verify" | "username"
+  >("initial");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   // const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
@@ -35,38 +37,48 @@ function Login() {
     // Initialize reCAPTCHA with a slight delay to ensure the DOM element exists
     const initializeRecaptcha = () => {
       try {
-        if (!window.recaptchaVerifier && document.getElementById('recaptcha-container')) {
-          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'normal',
-            'callback': (_response: any) => {
-              console.log('reCAPTCHA solved successfully');
-              setRecaptchaVerified(true);
-              setError(""); // Clear any previous errors
-            },
-            'expired-callback': () => {
-              console.log('reCAPTCHA expired');
-              setRecaptchaVerified(false);
-              setError("reCAPTCHA expired. Please verify again.");
+        if (
+          !window.recaptchaVerifier &&
+          document.getElementById("recaptcha-container")
+        ) {
+          window.recaptchaVerifier = new RecaptchaVerifier(
+            auth,
+            "recaptcha-container",
+            {
+              size: "normal",
+              callback: (_response: any) => {
+                console.log("reCAPTCHA solved successfully");
+                setRecaptchaVerified(true);
+                setError(""); // Clear any previous errors
+              },
+              "expired-callback": () => {
+                console.log("reCAPTCHA expired");
+                setRecaptchaVerified(false);
+                setError("reCAPTCHA expired. Please verify again.");
+              },
             }
-          });
-          
+          );
+
           // Render the reCAPTCHA
-          window.recaptchaVerifier.render().then(() => {
-            console.log('reCAPTCHA rendered successfully');
-          }).catch((error) => {
-            console.error('Error rendering reCAPTCHA:', error);
-            setError("Failed to load reCAPTCHA. Please refresh the page.");
-          });
+          window.recaptchaVerifier
+            .render()
+            .then(() => {
+              console.log("reCAPTCHA rendered successfully");
+            })
+            .catch((error) => {
+              console.error("Error rendering reCAPTCHA:", error);
+              setError("Failed to load reCAPTCHA. Please refresh the page.");
+            });
         }
       } catch (error) {
-        console.error('Error initializing reCAPTCHA:', error);
+        console.error("Error initializing reCAPTCHA:", error);
         setError("Failed to initialize reCAPTCHA. Please refresh the page.");
       }
     };
 
     // Use a timeout to ensure the DOM is ready
     const timeout = setTimeout(initializeRecaptcha, 1000);
-    
+
     return () => {
       clearTimeout(timeout);
       // Clean up reCAPTCHA when component unmounts
@@ -75,7 +87,7 @@ function Login() {
           window.recaptchaVerifier.clear();
           delete (window as any).recaptchaVerifier;
         } catch (error) {
-          console.error('Error cleaning up reCAPTCHA:', error);
+          console.error("Error cleaning up reCAPTCHA:", error);
         }
       }
     };
@@ -84,7 +96,7 @@ function Login() {
   // OTP Timer countdown effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (timerActive && otpTimer > 0) {
       interval = setInterval(() => {
         setOtpTimer((prevTimer) => {
@@ -109,7 +121,9 @@ function Login() {
   const formatTimer = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +138,9 @@ function Login() {
   // Check if user exists in database
   const checkUserInDatabase = async (phoneNumber: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/check?phoneNumber=${phoneNumber}`);
+      const response = await fetch(
+        `${API_BASE_URL}/user/check?phoneNumber=${phoneNumber}`
+      );
       if (response.ok) {
         const data = await response.json();
         return { exists: true, name: data.name, userId: data.userId };
@@ -132,7 +148,7 @@ function Login() {
         return { exists: false };
       }
     } catch (error) {
-      console.error('Error checking user:', error);
+      console.error("Error checking user:", error);
       return { exists: false };
     }
   };
@@ -141,13 +157,13 @@ function Login() {
   const registerUser = async (phoneNumber: string, name: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/user/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           phoneNumber: phoneNumber,
-          name: name
+          name: name,
         }),
       });
 
@@ -159,8 +175,8 @@ function Login() {
         return { success: false, error: errorData.message };
       }
     } catch (error) {
-      console.error('Error registering user:', error);
-      return { success: false, error: 'Network error' };
+      console.error("Error registering user:", error);
+      return { success: false, error: "Network error" };
     }
   };
 
@@ -168,10 +184,10 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     try {
       const { phone } = formData;
-      
+
       // Validate phone input
       if (!/^\d{10}$/.test(phone)) {
         setError("Please enter a valid 10-digit phone number.");
@@ -189,24 +205,30 @@ function Login() {
       // Send OTP using Firebase
       const phoneNumber = `+91${phone}`;
       console.log("Sending OTP to phone:", phoneNumber);
-      
+
       try {
-        await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        await signInWithPhoneNumber(
+          auth,
+          phoneNumber,
+          window.recaptchaVerifier
+        );
         // setConfirmationResult(confirmation);
         console.log("OTP sent successfully via Firebase");
       } catch (firebaseError) {
-        console.log("Firebase OTP failed, proceeding with dummy OTP:", firebaseError);
+        console.log(
+          "Firebase OTP failed, proceeding with dummy OTP:",
+          firebaseError
+        );
       }
-      
+
       // Move to OTP verification step (whether Firebase worked or not)
-      setCurrentStep('phone-verify');
-      
+      setCurrentStep("phone-verify");
+
       // Start the 5-minute countdown timer
       setOtpTimer(300); // Reset to 5 minutes
       setTimerActive(true);
-      
+
       setLoading(false);
-      
     } catch (err: any) {
       setError(err.message || "Failed to send OTP. Please try again.");
       setLoading(false);
@@ -217,25 +239,25 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     try {
       const { username, phone } = formData; // Removed email since it's commented out
-      
+
       if (!username.trim()) {
         setError("Please enter your name.");
         setLoading(false);
         return;
       }
-      
+
       // Register the user
       const result = await registerUser(phone, username.trim());
-      
+
       if (result.success) {
         // Store user info and redirect to home page
         const userData: any = {
           username: username.trim(),
           phone: phone,
-          isAuthenticated: true
+          isAuthenticated: true,
         };
 
         // Email assignment commented out since email field is commented out
@@ -243,14 +265,14 @@ function Login() {
         //   userData.email = email;
         // }
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        
+        localStorage.setItem("user", JSON.stringify(userData));
+
         // Trigger auth context update
-        window.dispatchEvent(new CustomEvent('userLogin'));
-        
+        window.dispatchEvent(new CustomEvent("userLogin"));
+
         // Small delay to ensure auth context updates
         setTimeout(() => {
-          navigate('/');
+          navigate("/");
         }, 100);
       } else {
         setError(result.error || "Failed to register user. Please try again.");
@@ -267,50 +289,52 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     try {
       const { otp, phone } = formData;
-      
+
       if (!otp || otp.length !== 6) {
         setError("Please enter a valid 6-digit OTP.");
         setLoading(false);
         return;
       }
-      
+
       if (otpTimer === 0) {
         setError("OTP has expired. Please request a new one.");
         setLoading(false);
         return;
       }
-      
+
       // Dummy OTP verification - accept any 6-digit code for now
       console.log("Verifying dummy OTP:", otp, "for phone:", phone);
-      
+
       // Stop the timer when OTP is successfully verified
       setTimerActive(false);
-      
+
       // Check if user exists in database
       const userExists = await checkUserInDatabase(phone);
-      
+
       if (userExists.exists) {
         // Store user info and redirect to home page
-        localStorage.setItem('user', JSON.stringify({
-          username: userExists.name,
-          phone: phone,
-          isAuthenticated: true
-        }));
-        
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            username: userExists.name,
+            phone: phone,
+            isAuthenticated: true,
+          })
+        );
+
         // Trigger auth context update
-        window.dispatchEvent(new CustomEvent('userLogin'));
-        
-        navigate('/');
+        window.dispatchEvent(new CustomEvent("userLogin"));
+
+        navigate("/");
       } else {
         // User needs to provide username
-        setCurrentStep('username');
+        setCurrentStep("username");
       }
-      
     } catch (err: any) {
-      console.error('Error verifying OTP:', err);
+      console.error("Error verifying OTP:", err);
       setError("Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
@@ -321,27 +345,33 @@ function Login() {
   const handleResendOTP = async () => {
     setLoading(true);
     setError("");
-    
+
     try {
       const phoneNumber = `+91${formData.phone}`;
       console.log("Resending OTP to phone:", phoneNumber);
-      
+
       try {
-        await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        await signInWithPhoneNumber(
+          auth,
+          phoneNumber,
+          window.recaptchaVerifier
+        );
         // setConfirmationResult(confirmation);
         console.log("OTP resent successfully via Firebase");
       } catch (firebaseError) {
-        console.log("Firebase OTP failed, proceeding with dummy OTP:", firebaseError);
+        console.log(
+          "Firebase OTP failed, proceeding with dummy OTP:",
+          firebaseError
+        );
       }
-      
+
       // Reset and start the timer again
       setOtpTimer(300);
       setTimerActive(true);
       setError("");
-      
+
       // Clear the OTP input
-      setFormData(prev => ({ ...prev, otp: "" }));
-      
+      setFormData((prev) => ({ ...prev, otp: "" }));
     } catch (err: any) {
       setError(err.message || "Failed to resend OTP. Please try again.");
     } finally {
@@ -357,10 +387,10 @@ function Login() {
 
       <div className="right-log">
         <div className="form">
-          {currentStep === 'initial' && (
+          {currentStep === "initial" && (
             <form className="login-form" onSubmit={handleVerificationSubmit}>
               <h2>Login</h2>
-              
+
               <div className="lables">
                 <label htmlFor="phone">Phone Number:</label>
                 <input
@@ -373,23 +403,21 @@ function Login() {
                   required
                 />
               </div>
-              
+
               {/* reCAPTCHA container - visible in form */}
               <div className="recaptcha-wrapper">
                 <div id="recaptcha-container"></div>
               </div>
-              
-              
-              
+
               {error && <p className="error-message">{error}</p>}
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 disabled={loading || !recaptchaVerified}
                 className="submit-btn"
                 style={{
                   opacity: recaptchaVerified ? 1 : 0.6,
-                  cursor: recaptchaVerified ? 'pointer' : 'not-allowed'
+                  cursor: recaptchaVerified ? "pointer" : "not-allowed",
                 }}
               >
                 {loading ? "Sending OTP..." : "Send OTP"}
@@ -397,25 +425,26 @@ function Login() {
             </form>
           )}
 
-          {currentStep === 'phone-verify' && (
+          {currentStep === "phone-verify" && (
             <form className="login-form" onSubmit={handleVerifyOTP}>
               <h2>Verify Phone Number</h2>
               <div className="message-container">
                 <p className="success-message">
-                  A verification code has been sent to <strong>+91{formData.phone}</strong>.
+                  A verification code has been sent to{" "}
+                  <strong>+91{formData.phone}</strong>.
                 </p>
-                <p>
-                  Please enter the 6-digit code below.
-                </p>
-                
+                <p>Please enter the 6-digit code below.</p>
+
                 {/* OTP Timer Display */}
                 <div className="otp-timer-container">
                   {timerActive ? (
                     <p className="timer-message">
-                      OTP expires in: 
-                      <span 
+                      OTP expires in:
+                      <span
                         className="timer-display"
-                        data-warning={otpTimer <= 120 && otpTimer > 60 ? "true" : "false"}
+                        data-warning={
+                          otpTimer <= 120 && otpTimer > 60 ? "true" : "false"
+                        }
                         data-critical={otpTimer <= 60 ? "true" : "false"}
                       >
                         {formatTimer(otpTimer)}
@@ -442,17 +471,17 @@ function Login() {
                   disabled={otpTimer === 0}
                 />
               </div>
-              
+
               {error && <p className="error-message">{error}</p>}
-              
+
               <button type="submit" disabled={loading || otpTimer === 0}>
                 {loading ? "Verifying..." : "Verify Code"}
               </button>
-              
+
               {/* Resend OTP Button - only show when timer has expired */}
               {otpTimer === 0 && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="resend-button"
                   onClick={handleResendOTP}
                   disabled={loading}
@@ -460,12 +489,12 @@ function Login() {
                   {loading ? "Resending..." : "Resend OTP"}
                 </button>
               )}
-              
-              <button 
-                type="button" 
-                className="back-button" 
+
+              <button
+                type="button"
+                className="back-button"
                 onClick={() => {
-                  setCurrentStep('initial');
+                  setCurrentStep("initial");
                   setError("");
                   setTimerActive(false);
                   setOtpTimer(300);
@@ -477,11 +506,13 @@ function Login() {
             </form>
           )}
 
-          {currentStep === 'username' && (
+          {currentStep === "username" && (
             <form className="login-form" onSubmit={handleRegisterUser}>
               <h2>Complete Registration</h2>
               <div className="phone-display">
-                <p><strong>Phone:</strong> {formData.phone}</p>
+                <p>
+                  <strong>Phone:</strong> {formData.phone}
+                </p>
               </div>
               <div className="username-block">
                 <div className="avatar">
@@ -502,13 +533,12 @@ function Login() {
                   required
                 />
               </div>
-              
+
               {error && <p className="error-message">{error}</p>}
-              
+
               <button type="submit" disabled={loading}>
                 {loading ? "Saving..." : "Save"}
               </button>
-
             </form>
           )}
         </div>
