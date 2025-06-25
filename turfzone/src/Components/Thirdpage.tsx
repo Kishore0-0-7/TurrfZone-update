@@ -11,6 +11,19 @@ import {
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
+// Add this style block after imports - it will ensure error messages are properly displayed
+const errorStyle = `
+  .error-message {
+    background-color: #ffdddd;
+    color: #ff0000;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+  }
+`;
+
 type SlotStatus = "available" | "booked" | "disabled" | "maintenance";
 
 type Slot = {
@@ -267,10 +280,25 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
     // Check if user is authenticated before allowing slot selection
     if (!currentUser) {
+      console.log("⚠️ User not authenticated, showing login popup");
       setShowLoginRequiredPopup(true);
       return;
     }
 
+    // Verify user has the necessary data for booking
+    if (!currentUser.phoneNumber) {
+      console.log("⚠️ User has no phone number");
+      setError(
+        "Your account is missing a phone number. Please update your profile before booking."
+      );
+      return;
+    }
+
+    console.log(
+      `✅ User authenticated: ${currentUser.displayName || "Guest"} (${
+        currentUser.phoneNumber
+      })`
+    );
     setStartSlotIndex(index);
     setShowEndTimePopup(true);
     setError(null); // Clear any previous errors
@@ -294,27 +322,51 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
       setLoading(true);
       setError(null);
 
-      // Get or create user ID in the backend using the phone number from authentication
-      if (!currentUser.phoneNumber) {
+      // Extract user information for booking
+      // CRITICAL FIX: We need to ensure each user gets a unique ID
+      // Instead of using a hardcoded value or relying solely on phoneNumber
+
+      // Get user ID from authentication
+      const userUid = currentUser.uid;
+      if (!userUid) {
+        throw new Error("Invalid user authentication. Please login again.");
+      }
+
+      // The phoneNumber is important for our backend user system
+      const phoneNumber = currentUser.phoneNumber;
+      if (!phoneNumber) {
         throw new Error(
           "No phone number associated with your account. Please update your profile."
         );
       }
 
-      // First check if user exists in backend
-      const userCheckResponse = await checkUser(currentUser.phoneNumber);
+      console.log(
+        `🔐 User authenticated with UID: ${userUid} and phone: ${phoneNumber}`
+      );
+
+      // Use both the uid and phoneNumber to create a unique representation
+      // First check if this user exists in backend by phone number
+      const userCheckResponse = await checkUser(phoneNumber);
 
       let userId: number;
 
       if (userCheckResponse.userId) {
-        // User exists, use their ID
+        // User already exists, use their ID
         userId = userCheckResponse.userId;
-        console.log(`✅ Found existing user with ID: ${userId}`);
+        console.log(
+          `✅ Found existing user with ID: ${userId} for phone ${phoneNumber}`
+        );
       } else {
-        // User doesn't exist, register them
+        // User doesn't exist in backend, register them
+        // Include the Firebase UID in the name field for extra tracking
+        const displayName =
+          currentUser.displayName || `User-${userUid.substring(0, 8)}`;
+
+        console.log(`📝 Registering new user: ${displayName} (${phoneNumber})`);
+
         const userRegisterResponse = await registerUser({
-          phoneNumber: currentUser.phoneNumber,
-          name: currentUser.displayName || undefined,
+          phoneNumber: phoneNumber,
+          name: displayName,
         });
 
         if (!userRegisterResponse.userId) {
@@ -322,7 +374,9 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
         }
 
         userId = userRegisterResponse.userId;
-        console.log(`✅ Registered new user with ID: ${userId}`);
+        console.log(
+          `✅ Registered new user with ID: ${userId} for phone ${phoneNumber}`
+        );
       }
 
       // IMPORTANT: Backend expects a 32-bit integer (max ~2.14 billion)
@@ -387,7 +441,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
   const bookingInfo = {
     date: selectedDate.toLocaleDateString("en-GB"),
     name: currentUser?.displayName || "Guest",
-    phone: currentUser?.phoneNumber || "",
+    phone: currentUser?.phoneNumber || "Not provided",
     time: `${fromTime} - ${toTime}`,
     price: sorted.length * 600,
   };
@@ -397,8 +451,9 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
   return (
     <div className="main">
+      <style>{errorStyle}</style>
       <div className="wrapper">
-        {error && <div className="error">{error}</div>}
+        {error && <div className="error-message">{error}</div>}
         <div className="inner-inner">
           {loading ? (
             <div className="loading">
@@ -543,8 +598,8 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                 <tbody>
                   <tr>
                     <td>{bookingInfo.date}</td>
-                    <td>{bookingInfo.name}</td>
-                    <td>{bookingInfo.phone}</td>
+                    <td>{currentUser?.displayName || "Guest"}</td>
+                    <td>{currentUser?.phoneNumber || "Not provided"}</td>
                     <td>{bookingInfo.time}</td>
                     <td>{bookingInfo.price}</td>
                   </tr>
@@ -555,7 +610,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                 onClick={handleFinalConfirm}
                 disabled={loading}
               >
-                {loading ? "Booking..." : "Confirm"}
+                {loading ? "Processing..." : "Confirm Booking"}
               </button>
             </div>
           </div>

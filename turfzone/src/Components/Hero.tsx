@@ -1,6 +1,6 @@
 import './Hero.css';
 
-function Hero() {
+function Hero({ onScrollClick }: { onScrollClick: () => void }) {
   return (
     <div className="hero">
       {/* <div className="overlay"></div>
@@ -11,13 +11,13 @@ function Hero() {
           </h1>
           <p><span className="green">A</span>nytime</p>
           <h2><span className="green">A</span>nywhere...</h2>
-        </div>
+        </div>*/}
         <div className="cta-button-wrapper">
           <button className="cta-button" onClick={onScrollClick}>
             Secure Your Spot
           </button>
         </div>
-      </div> */}
+      {/* </div>  */}
     </div>
   );
 }

@@ -40,6 +40,13 @@ export interface UserRegisterResponse {
   phoneNumber?: string;
 }
 
+export interface UserUpdateResponse {
+  message: string;
+  userId?: number;
+  name?: string;
+  phoneNumber?: string;
+}
+
 // Get slots with exceptions (booked/maintenance slots) for a specific date or all upcoming
 export const getSlotExceptions = async (): Promise<SlotDto[]> => {
   try {
@@ -267,6 +274,38 @@ export const registerUser = async (
     return result;
   } catch (error) {
     console.error("Error registering user:", error);
+    throw error;
+  }
+};
+
+// Update user name
+export const updateUserName = async (
+  phoneNumber: string,
+  name: string
+): Promise<UserUpdateResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/update-name`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phoneNumber,
+        name,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error updating user name:", error);
     throw error;
   }
 };

@@ -23,7 +23,7 @@
   width: 30%;
   background: #fff;
   display: flex;
-  
+
   justify-content: center;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
@@ -38,6 +38,7 @@
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0%);
   }
@@ -51,7 +52,7 @@
 }
 
 .end-time-option {
-  padding: 10px 15px;
+  padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   cursor: pointer;
@@ -77,13 +78,14 @@
 .main {
   background-color: white;
   width: 100%;
-  
+
 
   display: flex;
-  justify-content: center;  
-  align-items: center;      /* center vertically */
+  justify-content: center;
+  align-items: center;
+  /* center vertically */
   margin-bottom: 20px;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
 
@@ -109,8 +111,8 @@
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 20px;
-  
-  justify-content: center; 
+
+  justify-content: center;
   align-content: center;
 
   width: fit-content;
@@ -118,11 +120,7 @@
 
 }
 
-@media (max-width: 768px) {
-  .inner-inner {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+
 
 
 .disabled {
@@ -139,9 +137,9 @@
 }
 
 .booked {
-  background-color: white;
-  color: grey;
-  border: 2px solid grey;
+  background-color: red;
+  color:white;
+  border: none;
   cursor: not-allowed;
 }
 
@@ -229,7 +227,8 @@
   font-size: 22px;
   margin-bottom: 10px;
 }
-.popup-col{
+
+.popup-col {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -273,21 +272,8 @@
   font-size: 18px;
   text-align: center;
 }
-.amount-box{
-   background: white;
-  color: black;
-  border: 2px solid black;
-  padding: 10px;
-  width: 180px;
-  height: 40px;
-  border-radius: 5px;
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-  
 
-}
-.otp-input{ 
+.amount-box {
   background: white;
   color: black;
   border: 2px solid black;
@@ -298,7 +284,22 @@
   font-weight: bold;
   font-size: 18px;
   text-align: center;
-  }
+
+
+}
+
+.otp-input {
+  background: white;
+  color: black;
+  border: 2px solid black;
+  padding: 10px;
+  width: 180px;
+  height: 40px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+}
 
 .popup-buttons {
   display: flex;
@@ -352,6 +353,11 @@
   max-width: 900px;
   text-align: center;
   border: 3px solid green;
+}
+
+.success-message {
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .success-popup h2,
@@ -420,13 +426,13 @@
 
 /* MEDIA QUERIES */
 @media (max-width: 1024px) {
-  
+
   .inner-inner {
     gap: 15px;
     padding: 10px;
   }
 
- 
+
 
   .slot {
     width: 110px;
@@ -437,7 +443,15 @@
 @media (max-width: 768px) {
   .inner-inner {
     gap: 10px;
+
+    grid-template-columns: repeat(4, 1fr);
   }
+
+  .slide-popup {
+    align-items: center;
+  }
+
+
 
   .slot {
     width: 95px;
@@ -446,7 +460,7 @@
   }
 
   .popup {
-    width: 360px;
+    width: 420px;
     height: auto;
     padding: 15px;
   }
@@ -462,12 +476,40 @@
     font-size: 16px;
     height: 36px;
   }
+
   .popup-cancel,
-.popup-confirm {
-  width: 100%;
-  height: 45px;
-  font-size: 16px;
-}
+  .popup-confirm {
+    width: 100%;
+    height: 45px;
+    font-size: 16px;
+  }
+
+  .slide-popup {
+    width: 90%;
+    margin: 0 5%;
+    padding: 15px;
+  }
+
+  .login-prompt {
+    padding: 15px;
+  }
+
+  .login-prompt h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .login-prompt p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .login-btn,
+  .cancel-btn {
+    font-size: 14px;
+    height: 44px;
+    padding: 10px 20px;
+  }
 
 }
 
@@ -485,7 +527,7 @@
   }
 
   .popup {
-    width: 280px;
+    width: 320px;
     height: auto;
     padding: 10px;
     align-items: flex-start;
@@ -497,11 +539,12 @@
     font-size: 16px;
   }
 
-  .popup-col{
-  display: flex;
-  justify-content: space-between;
-  
-}
+  .popup-col {
+    display: flex;
+
+    justify-content: space-between;
+
+  }
 
   .time-display,
   .amount-box,
@@ -514,43 +557,120 @@
   .popup-buttons {
     flex-direction: column;
     gap: 10px;
-    
+
   }
+
   .popup-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  gap: 20px;
-}
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+    /* Center all children horizontally */
+    margin-bottom: 1rem;
+  }
 
-.popup-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
+  .popup-row2,
+  .popup-row3 {
+    display: flex;
 
-.time-display {
-  font-weight: bold;
-  margin-top: 4px;
-  background-color: #f0f0f0;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+    /* Center all children horizontally */
+    margin-bottom: 1rem;
+  }
+
+  .popup-col {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .time-display {
+    font-weight: bold;
+    margin-top: 4px;
+    background-color: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
 
 
   .final-confirm {
     width: 100px;
     font-size: 16px;
   }
+
+  .popup-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+    /* Center all children horizontally */
+    margin-bottom: 1rem;
+  }
+
   .popup-cancel,
-.popup-confirm {
-  width: 100%;
-  height: 40px;
-  font-size: 14px;
+  .popup-confirm {
+    width: 100%;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .booking-table {
+    display: none;
+  }
+
+  .success-message {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+
+
+  .slide-popup {
+    border-radius: 12px;
+    width: 90%;
+    max-width: 350px;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .slide-popup {
+    width: 95%;
+    margin: 0 2.5%;
+    padding: 12px;
+  }
+
+  .login-prompt {
+    padding: 12px;
+  }
+
+  .login-prompt h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .login-prompt p {
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  .login-prompt-buttons {
+    gap: 12px;
+  }
+
+  .login-btn,
+  .cancel-btn {
+    font-size: 13px;
+    height: 42px;
+    padding: 8px 16px;
+  }
 }
 
-}
+
+
 
 /* Login Modal Styles */
 .login-prompt {
@@ -624,95 +744,18 @@
   background: #f0f9ef;
 }
 
-/* Responsive design for login modal */
-@media (max-width: 768px) {
-  .slide-popup {
-    width: 90%;
-    margin: 0 5%;
-    padding: 15px;
-  }
-  
-  .login-prompt {
-    padding: 15px;
-  }
-  
-  .login-prompt h2 {
-    font-size: 20px;
-    margin-bottom: 12px;
-  }
-  
-  .login-prompt p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-  
-  .login-btn,
-  .cancel-btn {
-    font-size: 14px;
-    height: 44px;
-    padding: 10px 20px;
-  }
-}
 
-@media (max-width: 480px) {
-  .slide-popup {
-    width: 95%;
-    margin: 0 2.5%;
-    padding: 12px;
-  }
-  
-  .login-prompt {
-    padding: 12px;
-  }
-  
-  .login-prompt h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  .login-prompt p {
-    font-size: 13px;
-    margin-bottom: 18px;
-  }
-  
-  .login-prompt-buttons {
-    gap: 12px;
-  }
-  
-  .login-btn,
-  .cancel-btn {
-    font-size: 13px;
-    height: 42px;
-    padding: 8px 16px;
-  }
-}
 
-/* Improve slide-popup responsiveness */
-@media (max-width: 768px) {
-  .slide-popup {
-    align-items: center;
-  }
-}
 
-@media (max-width: 480px) {
-  .slide-overlay {
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .slide-popup {
-    border-radius: 12px;
-    width: 90%;
-    max-width: 320px;
-    animation: fadeIn 0.3s ease-out;
-  }
-}
+
+
 
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
