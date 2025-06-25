@@ -1,5 +1,10 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Hedder from "./Components/Hedder";
 import Hero from "./Components/Hero";
 import Login from "./Login/Login";
@@ -56,13 +61,15 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '1.5rem'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "1.5rem",
+        }}
+      >
         Loading...
       </div>
     );
@@ -71,39 +78,46 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={currentUser ? <Navigate to="/" /> : <Login />} />
+        <Route
+          path="/login"
+          element={currentUser ? <Navigate to="/" /> : <Login />}
+        />
         <Route
           path="/"
           element={
             <>
               <Hedder />
-              <Hero />
+              <Hero
+                onScrollClick={() => {
+                  secondPageRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
               <div ref={secondPageRef}>
                 <Secondpage onScrollToThirdPage={scrollToThirdPage} />
               </div>
               <div ref={thirdPageRef}>
-                <Thirdpage 
-                  key={selectedDate.toDateString()} 
-                  selectedDate={selectedDate} 
+                <Thirdpage
+                  key={selectedDate.toDateString()}
+                  selectedDate={selectedDate}
                 />
               </div>
             </>
           }
         />
-        
+
         {/* User Dashboard Route */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }
         />
-        
+
         {/* ADMIN LAYOUT with Protected Routes */}
-        <Route 
-          path="/admin" 
+        <Route
+          path="/admin"
           element={
             <ProtectedRoute>
               <Layout />
@@ -113,7 +127,10 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="booking" element={<Booking />} />
-          <Route path="management" element={<Management onScrollToThirdPage={() => {}} />} />
+          <Route
+            path="management"
+            element={<Management onScrollToThirdPage={() => {}} />}
+          />
           <Route path="userdetail" element={<UserDetail />} />
         </Route>
       </Routes>

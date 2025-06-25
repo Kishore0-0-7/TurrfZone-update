@@ -1,11 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap");
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   background-color: white;
   overflow-x: hidden; /* Prevents horizontal scroll due to overlap */
 }
@@ -16,7 +17,7 @@ html, body {
 
 .overall {
   display: flex;
-  
+
   padding: 0;
 }
 
@@ -38,7 +39,6 @@ html, body {
 
 /* Right Side */
 .right-log {
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,7 +56,7 @@ html, body {
   background-color: #2e2e2e;
   padding: 40px 30px;
   border-radius: 12px;
-  font-family: 'Titillium Web', sans-serif;
+  font-family: "Titillium Web", sans-serif;
   display: flex;
   flex-direction: column;
   color: white;
@@ -67,7 +67,7 @@ html, body {
 }
 
 .lables {
-  font-family: 'Titillium Web', sans-serif;
+  font-family: "Titillium Web", sans-serif;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -103,7 +103,7 @@ html, body {
 /* Primary Submit Button (Send OTP, Verify Code, Complete Registration) */
 .submit-btn {
   padding: 12px 24px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   border: none;
   background-color: #40ba36;
   color: #ffffff;
@@ -157,7 +157,7 @@ html, body {
   border-radius: 8px;
   background-color: #ffffff;
   color: #2e2e2e;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -194,7 +194,7 @@ html, body {
 /* General Button (for other buttons like those in username form) */
 .login-form button:not(.submit-btn):not(.back-button) {
   padding: 12px 24px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   border: none;
   background-color: #40ba36;
   color: #ffffff;
@@ -240,7 +240,7 @@ html, body {
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -289,7 +289,7 @@ html, body {
   border-radius: 8px;
   background-color: #ffa502;
   color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -331,12 +331,12 @@ html, body {
     font-size: 20px;
     height: 55px;
   }
-  
+
   .back-button {
     max-width: 170px;
     font-size: 17px;
   }
-  
+
   .login-form button:not(.submit-btn):not(.back-button) {
     max-width: 270px;
     font-size: 20px;
@@ -351,12 +351,12 @@ html, body {
     font-size: 18px;
     height: 50px;
   }
-  
+
   .back-button {
     max-width: 150px;
     font-size: 16px;
   }
-  
+
   .login-form button:not(.submit-btn):not(.back-button) {
     max-width: 250px;
     font-size: 18px;
@@ -375,12 +375,12 @@ html, body {
     color: #ffffff;
     border: 2px solid #2e2e2e;
   }
-  
+
   .submit-btn:hover {
     background-color: #1a1a1a;
     border-color: #1a1a1a;
   }
-  
+
   .back-button {
     max-width: 100%;
     width: 100%;
@@ -389,19 +389,19 @@ html, body {
     border: 2px solid #2e2e2e;
     font-size: 16px;
   }
-  
+
   .back-button:hover {
     background-color: #f8f9fa;
     border-color: #1a1a1a;
     color: #1a1a1a;
   }
-  
+
   .resend-button {
     max-width: 100%;
     width: 100%;
     font-size: 16px;
   }
-  
+
   .login-form button:not(.submit-btn):not(.back-button):not(.resend-button) {
     max-width: 100%;
     width: 100%;
@@ -410,11 +410,12 @@ html, body {
     font-size: 18px;
     height: 50px;
   }
-  
-  .login-form button:not(.submit-btn):not(.back-button):not(.resend-button):hover {
+
+  .login-form
+    button:not(.submit-btn):not(.back-button):not(.resend-button):hover {
     background-color: #1a1a1a;
   }
-  
+
   .verification-btn {
     padding: 10px 16px;
     font-size: 15px;
@@ -436,12 +437,12 @@ html, body {
     border: 2px solid #2e2e2e;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
-  
+
   .submit-btn:hover {
     background-color: #1a1a1a;
     border-color: #1a1a1a;
   }
-  
+
   .back-button {
     width: 100%;
     max-width: 100%;
@@ -452,13 +453,13 @@ html, body {
     height: 45px;
     margin-top: 10px;
   }
-  
+
   .back-button:hover {
     background-color: #f8f9fa;
     border-color: #1a1a1a;
     color: #1a1a1a;
   }
-  
+
   .resend-button {
     width: 100%;
     max-width: 100%;
@@ -466,7 +467,7 @@ html, body {
     height: 45px;
     margin-top: 10px;
   }
-  
+
   .login-form button:not(.submit-btn):not(.back-button):not(.resend-button) {
     width: 100%;
     max-width: 100%;
@@ -476,11 +477,12 @@ html, body {
     height: 48px;
     padding: 12px 20px;
   }
-  
-  .login-form button:not(.submit-btn):not(.back-button):not(.resend-button):hover {
+
+  .login-form
+    button:not(.submit-btn):not(.back-button):not(.resend-button):hover {
     background-color: #1a1a1a;
   }
-  
+
   .verification-btn {
     padding: 8px 12px;
     font-size: 14px;
@@ -488,12 +490,12 @@ html, body {
     min-width: 80px;
     border-radius: 6px;
   }
-  
+
   .button-group {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .verification-btn {
     width: 100%;
     min-width: auto;
@@ -513,7 +515,7 @@ html, body {
   margin: 10px 0;
   font-size: 14px;
   font-weight: 500;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
 }
 
 /* Success Message */
@@ -521,7 +523,7 @@ html, body {
   color: #2ed573;
   margin: 0 0 10px 0;
   font-weight: 600;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
 }
 
 /* Info Message */
@@ -535,7 +537,7 @@ html, body {
   margin: 10px 0;
   font-size: 14px;
   font-weight: 500;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
 }
 
 /* Note Message */
@@ -544,7 +546,7 @@ html, body {
   margin: 10px 0 0 0;
   font-size: 14px;
   opacity: 0.8;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
 }
 
 /* ===== RESPONSIVE MESSAGE STYLES ===== */
@@ -555,11 +557,11 @@ html, body {
     font-size: 13px;
     padding: 10px;
   }
-  
+
   .success-message {
     font-size: 15px;
   }
-  
+
   .note-message {
     font-size: 13px;
   }
@@ -572,11 +574,11 @@ html, body {
     padding: 8px;
     margin: 8px 0;
   }
-  
+
   .success-message {
     font-size: 14px;
   }
-  
+
   .note-message {
     font-size: 12px;
   }
@@ -618,7 +620,8 @@ html, body {
     min-height: 100vh;
   }
 
-  .left-log, .right-log {
+  .left-log,
+  .right-log {
     width: 100%;
     height: auto;
     padding: 20px 0;
@@ -738,11 +741,14 @@ html, body {
   text-transform: uppercase;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-.username-block{
+.username-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+}
+input {
+  padding: 10px;
 }
 
 .phone-display {
@@ -826,7 +832,7 @@ html, body {
   font-size: 14px;
   color: #ffffff;
   text-align: center;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-weight: 600;
 }
 
@@ -856,14 +862,14 @@ html, body {
   font-size: 16px;
   font-weight: 500;
   margin: 0;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
 }
 
 .timer-display {
   color: #40ba36;
   font-size: 20px;
   font-weight: 700;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   background-color: rgba(64, 186, 54, 0.1);
   padding: 4px 8px;
   border-radius: 4px;
@@ -876,7 +882,7 @@ html, body {
   font-size: 15px;
   font-weight: 600;
   margin: 0;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   background-color: rgba(255, 71, 87, 0.1);
   padding: 8px 12px;
   border-radius: 6px;
@@ -899,13 +905,23 @@ html, body {
 }
 
 @keyframes pulse-warning {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes pulse-critical {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ===== RESPONSIVE TIMER STYLES ===== */
@@ -914,17 +930,17 @@ html, body {
   .timer-message {
     font-size: 15px;
   }
-  
+
   .timer-display {
     font-size: 18px;
     padding: 3px 6px;
   }
-  
+
   .timer-expired {
     font-size: 14px;
     padding: 6px 10px;
   }
-  
+
   .otp-timer-container {
     margin: 12px 0;
     padding: 10px;
@@ -935,7 +951,7 @@ html, body {
   .timer-message {
     font-size: 14px;
   }
-  
+
   .timer-display {
     font-size: 16px;
     padding: 2px 4px;
@@ -943,12 +959,12 @@ html, body {
     display: block;
     margin-top: 5px;
   }
-  
+
   .timer-expired {
     font-size: 13px;
     padding: 6px 8px;
   }
-  
+
   .otp-timer-container {
     margin: 10px 0;
     padding: 8px;
