@@ -30,10 +30,20 @@ const Secondpage = ({
   const prevImage = () =>
     setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
 
-  const nextWeek = () =>
-    setSelectedDate(
-      (prev) => new Date(prev.getTime() + 7 * 24 * 60 * 60 * 1000)
-    );
+  const nextWeek = () => {
+    const tentativeNext = new Date(selectedDate);
+    tentativeNext.setDate(selectedDate.getDate() + maxDays); // use maxDays here!
+
+    // If new date crosses to next month, reset to 1st of next month
+    if (tentativeNext.getMonth() !== selectedDate.getMonth()) {
+      const nextMonthStart = new Date(selectedDate);
+      nextMonthStart.setMonth(selectedDate.getMonth() + 1);
+      nextMonthStart.setDate(1);
+      setSelectedDate(nextMonthStart);
+    } else {
+      setSelectedDate(tentativeNext);
+    }
+  };
 
   const prevWeek = () => {
     const newDate = new Date(selectedDate.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -55,19 +65,38 @@ const Secondpage = ({
       setSelectedDate(newDate);
     }
   };
+  const [maxDays, setMaxDays] = useState(() =>
+    window.innerWidth <= 480 ? 3 : 7
+  );
+  useEffect(() => {
+    const handleResize = () => {
+      setMaxDays(window.innerWidth <= 480 ? 3 : 7);
+    };
 
-const getWeekDates = () => {
-  const weekDates = [];
-  const startIndex = window.innerWidth <= 480 ? 4 : 0;
+    window.addEventListener("resize", handleResize);
 
-  for (let i = startIndex; i < 7; i++) {
-    const date = new Date(selectedDate);
-    date.setDate(selectedDate.getDate() + i);
-    weekDates.push(date);
-  }
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
-  return weekDates;
-};
+  const getWeekDates = () => {
+    const weekDates: Date[] = [];
+    const baseDate = new Date(selectedDate);
+    const currentMonth = baseDate.getMonth();
+
+    for (let i = 0; i < maxDays; i++) {
+      const date = new Date(baseDate);
+      date.setDate(baseDate.getDate() + i);
+
+      if (date.getMonth() !== currentMonth) break;
+
+      weekDates.push(date);
+    }
+
+    return weekDates;
+  };
 
   useEffect(() => {
     setClickedDate(today);
