@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Thirdpage.css";
-import { getSlotsByDate, bookSlot, formatTimeForAPI, formatDateForAPI } from "../services/api";
+import {
+  getSlotsByDate,
+  bookSlot,
+  formatTimeForAPI,
+  formatDateForAPI,
+  checkUser,
+  registerUser,
+} from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 type SlotStatus = "available" | "booked" | "disabled" | "maintenance";
@@ -46,7 +53,9 @@ const defaultSlots: Slot[] = [
 const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [slots, setSlots] = useState<Slot[]>(defaultSlots.map(slot => ({ ...slot })));
+  const [slots, setSlots] = useState<Slot[]>(
+    defaultSlots.map((slot) => ({ ...slot }))
+  );
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -86,16 +95,16 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
   // Load slots from backend when date changes
   useEffect(() => {
     let isCancelled = false; // Prevent state updates if component unmounts
-    
+
     const loadSlots = async () => {
       if (isCancelled) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       // Reset selected slots but keep existing slots visible during loading
       setSelectedSlots([]);
-      
+
       try {
         // Get current time info
         const now = new Date();
@@ -105,79 +114,82 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
         // Get booked/unavailable slots from backend for this specific date
         const slotsFromBackend = await getSlotsByDate(selectedDate);
-        
+
         if (isCancelled) return; // Don't continue if component unmounted
-        
-        console.log(`📅 Processing ${slotsFromBackend.length} slots from backend for ${selectedDateString}`);
-        
+
+        console.log(
+          `📅 Processing ${slotsFromBackend.length} slots from backend for ${selectedDateString}`
+        );
+
         // Create a Set of unavailable slot times for faster lookup
         // Backend returns slots with status 'Unavailable' for booked/blocked slots
         const unavailableSlotTimes = new Set(
           slotsFromBackend
-            .filter(slot => slot.status === 'Unavailable')
-            .map(slot => slot.slotTime)
+            .filter((slot) => slot.status === "Unavailable")
+            .map((slot) => slot.slotTime)
         );
 
-        console.log('🚫 Unavailable slots:', Array.from(unavailableSlotTimes));
+        console.log("🚫 Unavailable slots:", Array.from(unavailableSlotTimes));
 
         // Process each default slot
         const processedSlots = defaultSlots.map((slot) => {
           const slotTime = slot.time;
           const cleanSlotTime = slotTime.replace(" (Next Day)", "");
-          
+
           // FIRST PRIORITY: If it's today, check if the slot time has passed
           // Past time slots should always be disabled regardless of booking status
           if (isToday) {
             const slotDateTime = parseTime(slotTime, selectedDate);
             const hasSlotPassed = now >= slotDateTime;
-            
+
             if (hasSlotPassed) {
               return {
                 ...slot,
-                status: "disabled" as SlotStatus
+                status: "disabled" as SlotStatus,
               };
             }
           }
-          
+
           // SECOND PRIORITY: Check if this slot is unavailable/booked from backend
           // Only apply this if the slot time hasn't passed
           if (unavailableSlotTimes.has(cleanSlotTime)) {
             return {
               ...slot,
-              status: "booked" as SlotStatus
+              status: "booked" as SlotStatus,
             };
           }
-          
+
           // DEFAULT: Available
           return {
             ...slot,
-            status: "available" as SlotStatus
+            status: "available" as SlotStatus,
           };
         });
 
         const statusCounts = {
-          booked: processedSlots.filter(s => s.status === 'booked').length,
-          disabled: processedSlots.filter(s => s.status === 'disabled').length,
-          available: processedSlots.filter(s => s.status === 'available').length
+          booked: processedSlots.filter((s) => s.status === "booked").length,
+          disabled: processedSlots.filter((s) => s.status === "disabled")
+            .length,
+          available: processedSlots.filter((s) => s.status === "available")
+            .length,
         };
-        console.log('✅ Final slot status counts:', statusCounts);
-        
+        console.log("✅ Final slot status counts:", statusCounts);
+
         if (!isCancelled) {
           // Update slots after processing is complete
           setSlots(processedSlots);
           setLoading(false);
         }
-        
       } catch (err) {
         if (!isCancelled) {
-          console.error('Error loading slots:', err);
-          setError('Failed to load slot data');
-          
+          console.error("Error loading slots:", err);
+          setError("Failed to load slot data");
+
           // Fallback to default slots with proper time-based disabling
           const now = new Date();
           const isToday = selectedDate.toDateString() === now.toDateString();
-          
-          const fallbackSlots = defaultSlots.map(slot => {
+
+          const fallbackSlots = defaultSlots.map((slot) => {
             if (isToday) {
               const slotDateTime = parseTime(slot.time, selectedDate);
               const hasSlotPassed = now >= slotDateTime;
@@ -187,7 +199,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
             }
             return { ...slot };
           });
-          
+
           setSlots(fallbackSlots);
           setLoading(false);
         }
@@ -195,12 +207,12 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
     };
 
     loadSlots();
-    
+
     // Cleanup function to prevent memory leaks
     return () => {
       isCancelled = true;
     };
-    
+
     // Scroll to top
     setTimeout(() => {
       if (slotRefs.current[0]) {
@@ -221,18 +233,18 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
     const updateTimeBasedStatus = () => {
       const now = new Date();
-      
-      setSlots(prevSlots => 
-        prevSlots.map(slot => {
+
+      setSlots((prevSlots) =>
+        prevSlots.map((slot) => {
           // Check if this slot time has passed
           const slotDateTime = parseTime(slot.time, selectedDate);
           const shouldDisable = now >= slotDateTime;
-          
+
           // PRIORITY: Time-based disabling overrides all other statuses
           if (shouldDisable) {
             return { ...slot, status: "disabled" as SlotStatus };
           }
-          
+
           // If time hasn't passed, maintain current status
           // (but don't change disabled slots back to available/booked without proper logic)
           return slot;
@@ -242,23 +254,23 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
     // Update immediately
     updateTimeBasedStatus();
-    
+
     // Set up interval for future updates
     const interval = setInterval(updateTimeBasedStatus, 60000); // Every minute
-    
+
     return () => clearInterval(interval);
   }, [selectedDate]);
 
   const handleSlotClick = (index: number) => {
     const clickedSlot = slots[index];
     if (clickedSlot.status !== "available") return;
-    
+
     // Check if user is authenticated before allowing slot selection
     if (!currentUser) {
       setShowLoginRequiredPopup(true);
       return;
     }
-    
+
     setStartSlotIndex(index);
     setShowEndTimePopup(true);
     setError(null); // Clear any previous errors
@@ -277,49 +289,78 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
       setShowSuccessPopup(false);
       return;
     }
-    
+
     try {
       setLoading(true);
       setError(null);
-      
-      // Get user ID - convert to a regular number for API consumption
+
+      // Get or create user ID in the backend using the phone number from authentication
+      if (!currentUser.phoneNumber) {
+        throw new Error(
+          "No phone number associated with your account. Please update your profile."
+        );
+      }
+
+      // First check if user exists in backend
+      const userCheckResponse = await checkUser(currentUser.phoneNumber);
+
+      let userId: number;
+
+      if (userCheckResponse.userId) {
+        // User exists, use their ID
+        userId = userCheckResponse.userId;
+        console.log(`✅ Found existing user with ID: ${userId}`);
+      } else {
+        // User doesn't exist, register them
+        const userRegisterResponse = await registerUser({
+          phoneNumber: currentUser.phoneNumber,
+          name: currentUser.displayName || undefined,
+        });
+
+        if (!userRegisterResponse.userId) {
+          throw new Error("Failed to register user in backend");
+        }
+
+        userId = userRegisterResponse.userId;
+        console.log(`✅ Registered new user with ID: ${userId}`);
+      }
+
       // IMPORTANT: Backend expects a 32-bit integer (max ~2.14 billion)
-      // Since the user ID is likely a phone number (9+ digits), we need to use a smaller number
-      // For testing purposes, use a fixed ID within int32 range
-      const userId = 1; // Fixed ID that works with backend int32 validation
-      
+      // Ensure userId is within int32 range
+      userId = Math.min(Number(userId), 2147483647);
+
       // Construct bookingData with PascalCase keys for backend compatibility
       // Special handling for midnight (12 AM) end time
       // If toTime is 12 AM, we need to handle it specially
       let endTime = formatTimeForAPI(toTime);
-      
+
       // Log the bookingData for debugging
-      console.log('🕒 Time values:', {
+      console.log("🕒 Time values:", {
         fromRaw: fromTime,
-        toRaw: toTime,  
+        toRaw: toTime,
         fromFormatted: formatTimeForAPI(fromTime),
-        toFormatted: endTime
+        toFormatted: endTime,
       });
-      
+
       const bookingData = {
         UserId: userId,
         BookingDate: formatDateForAPI(selectedDate), // "YYYY-MM-DD"
-        SlotTimeFrom: formatTimeForAPI(fromTime),    // e.g. "2 PM"
-        SlotTimeTo: endTime,                        // e.g. "5 PM" or "12 AM"
-        Amount: sorted.length * 600
+        SlotTimeFrom: formatTimeForAPI(fromTime), // e.g. "2 PM"
+        SlotTimeTo: endTime, // e.g. "5 PM" or "12 AM"
+        Amount: sorted.length * 600,
       };
 
-      console.log('🎯 Booking data being sent:', {
+      console.log("🎯 Booking data being sent:", {
         ...bookingData,
         selectedDate: selectedDate.toString(),
         fromTime,
         toTime,
-        sorted
+        sorted,
       });
 
       // Submit booking to backend
       const result = await bookSlot(bookingData);
-      
+
       if (result.bookingId) {
         // Update local state to reflect booking
         const updatedSlots = slots.map((slot, i) =>
@@ -334,8 +375,8 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
         setShowSuccessPopup(false);
       }
     } catch (err: any) {
-      console.error('Error booking slot:', err);
-      setError(err.message || 'Failed to book slot. Please try again.');
+      console.error("Error booking slot:", err);
+      setError(err.message || "Failed to book slot. Please try again.");
       // Don't close popup on error
     } finally {
       setLoading(false);
@@ -345,8 +386,8 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
   const sorted = [...selectedSlots].sort((a, b) => a - b);
   const bookingInfo = {
     date: selectedDate.toLocaleDateString("en-GB"),
-    name: "AAAAA",
-    phone: "1234567890",
+    name: currentUser?.displayName || "Guest",
+    phone: currentUser?.phoneNumber || "",
     time: `${fromTime} - ${toTime}`,
     price: sorted.length * 600,
   };
@@ -360,7 +401,9 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
         {error && <div className="error">{error}</div>}
         <div className="inner-inner">
           {loading ? (
-            <div className="loading">Loading slots for {selectedDate.toDateString()}...</div>
+            <div className="loading">
+              Loading slots for {selectedDate.toDateString()}...
+            </div>
           ) : (
             slots
               .filter((slot) => slot.time !== "12 AM (Next Day)")
@@ -507,12 +550,12 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                   </tr>
                 </tbody>
               </table>
-              <button 
-                className="final-confirm" 
+              <button
+                className="final-confirm"
                 onClick={handleFinalConfirm}
                 disabled={loading}
               >
-                {loading ? 'Booking...' : 'Confirm'}
+                {loading ? "Booking..." : "Confirm"}
               </button>
             </div>
           </div>
@@ -529,7 +572,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                   onClick={() => {
                     setShowLoginRequiredPopup(false);
                     // Navigate to login page
-                    navigate('/login');
+                    navigate("/login");
                   }}
                 >
                   Login
@@ -585,18 +628,22 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                                   setShowEndTimePopup(false);
                                   return;
                                 }
-                                
+
                                 const selected = [];
-                                
+
                                 // Select all slots from start to end (non-inclusive of end time)
                                 for (let j = startSlotIndex; j < i; j++) {
                                   selected.push(j);
                                 }
-                                
+
                                 // Debug log the selection
-                                console.log(`⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`);
-                                console.log(`🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`);
-                                
+                                console.log(
+                                  `⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`
+                                );
+                                console.log(
+                                  `🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`
+                                );
+
                                 setSelectedSlots(selected);
                                 setEndSlotIndex(i);
                                 setShowEndTimePopup(false);
@@ -622,18 +669,22 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                                 setShowEndTimePopup(false);
                                 return;
                               }
-                              
+
                               const selected = [];
-                              
+
                               // Select all slots from start to end (non-inclusive of end time)
                               for (let j = startSlotIndex; j < i; j++) {
                                 selected.push(j);
                               }
-                              
+
                               // Debug log the selection
-                              console.log(`⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`);
-                              console.log(`🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`);
-                              
+                              console.log(
+                                `⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`
+                              );
+                              console.log(
+                                `🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`
+                              );
+
                               setSelectedSlots(selected);
                               setEndSlotIndex(i);
                               setShowEndTimePopup(false);
