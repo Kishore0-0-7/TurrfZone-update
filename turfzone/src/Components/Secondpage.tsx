@@ -56,15 +56,18 @@ const Secondpage = ({
     }
   };
 
-  const getWeekDates = () => {
-    const weekDates = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(selectedDate);
-      date.setDate(selectedDate.getDate() + i);
-      weekDates.push(date);
-    }
-    return weekDates;
-  };
+const getWeekDates = () => {
+  const weekDates = [];
+  const startIndex = window.innerWidth <= 480 ? 4 : 0;
+
+  for (let i = startIndex; i < 7; i++) {
+    const date = new Date(selectedDate);
+    date.setDate(selectedDate.getDate() + i);
+    weekDates.push(date);
+  }
+
+  return weekDates;
+};
 
   useEffect(() => {
     setClickedDate(today);

@@ -533,10 +533,14 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
             <div className="popup">
               <h2>Confirmation</h2>
               <div className="popup-row">
-                <span>From :</span>
-                <div className="time-display">{fromTime}</div>
-                <span>To :</span>
-                <div className="time-display">{toTime}</div>
+                <div className="popup-col">
+                  <span>From :</span>
+                  <div className="time-display">{fromTime}</div>
+                </div>
+                <div className="popup-col">
+                  <span>To :</span>
+                  <div className="time-display">{toTime}</div>
+                </div>
               </div>
               <div className="popup-row2">
                 <span> Total Hours:</span>

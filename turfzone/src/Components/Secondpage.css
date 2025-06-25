@@ -9,9 +9,7 @@ body {
   background-color: white;
   color: black;
   text-align: center;
-  font-family: 'Rajdhani', sans-serif;
-  
-
+  font-family: "Rajdhani", sans-serif;
 }
 
 .slider {
@@ -19,13 +17,12 @@ body {
   width: 100%;
   max-width: 100%;
   height: 700px;
-  background-color: #000 ;
+  background-color: #000;
   padding: 20px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 .slider-image-wrapper {
   width: 100%;
@@ -38,7 +35,6 @@ body {
   display: flex;
   height: 100%;
   transition: transform 0.8s ease-in-out;
-  
 }
 
 .slider-image {
@@ -48,13 +44,11 @@ body {
   border-radius: 40px;
 }
 
-
 .slider img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 40px;
-  
 }
 
 .nav-btn {
@@ -94,7 +88,6 @@ body {
   margin-top: 10px;
   /* margin-bottom: 50px; */
   font-weight: bold;
-
 }
 
 /* .left-calendar {
@@ -144,8 +137,6 @@ body {
   background: transparent;
 }
 
-
-
 .day {
   background: white;
   padding: 12px 8px;
@@ -161,7 +152,6 @@ body {
   font-weight: 500;
 
   flex-shrink: 0;
-
 }
 
 .day.disabled {
@@ -169,7 +159,6 @@ body {
   pointer-events: none;
   display: none;
 }
-
 
 .day span:first-child {
   font-size: 20px;
@@ -196,8 +185,7 @@ body {
 }
 
 .footer-msg {
- 
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-weight: bold;
   font-size: 40px;
   margin-bottom: 50px;
@@ -208,7 +196,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+;
   flex-wrap: nowrap;
   overflow-x: hidden;
 }
@@ -219,14 +207,10 @@ body {
     height: 600px;
   }
 
-
   .calendar-nav {
     font-size: 30px;
     margin-top: 80px;
     margin-bottom: 40px;
-
-
-
   }
 
   /* .left-calendar {
@@ -242,8 +226,6 @@ body {
     font-size: 30px;
     align-self: end;
   } */
-
-
 
   .nav-btn {
     font-size: 40px;
@@ -273,7 +255,6 @@ body {
     height: 400px;
     width: 100%;
     padding: 10px;
-
   }
 
   .slider img {
@@ -327,9 +308,8 @@ body {
 
 @media (max-width: 480px) {
   .slider {
-    height: 200px;
+    height: 300px;
     width: 100%;
-
   }
 
   .slider img {
@@ -341,7 +321,6 @@ body {
     font-size: 20px;
     margin-top: 40px;
     margin-bottom: 20px;
-
   }
 
   /* .left-calendar {
@@ -357,8 +336,6 @@ body {
     font-size: 30px;
     align-self: end;
   } */
-
-
 
   .nav-btn {
     font-size: 30px;
@@ -393,8 +370,6 @@ body {
     height: 200px;
     width: 100%;
     padding: 10px;
-  
-
   }
 
   .slider img {
@@ -406,7 +381,6 @@ body {
     font-size: 20px;
     /* margin-top: 40px;
     margin-bottom: 20px; */
-
   }
 
   /* .left-calendar {
@@ -423,8 +397,6 @@ body {
     align-self: end;
   } */
 
-
-
   .nav-btn {
     font-size: 30px;
     padding: 10px;
@@ -437,7 +409,6 @@ body {
   .day {
     min-width: 40px;
     min-height: 30px;
-  
   }
 
   .day span:first-child {

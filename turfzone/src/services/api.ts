@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://artechnology18.duckdns.org/api"; // Remote backend server
+const API_BASE_URL = "http://localhost:5125/api"; // Remote backend server
 
 export interface SlotDto {
   slotId: number;
