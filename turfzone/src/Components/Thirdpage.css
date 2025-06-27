@@ -32,7 +32,6 @@
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
 }
 
-
 /* Slide animation */
 @keyframes slideUp {
   from {
@@ -60,7 +59,6 @@
   transition: 0.2s;
 }
 
-
 .end-time-option:hover {
   background-color: #d0f0ff;
 }
@@ -79,15 +77,13 @@
   background-color: white;
   width: 100%;
 
-
   display: flex;
   justify-content: center;
   align-items: center;
- 
+
   margin-bottom: 20px;
   overflow-x: hidden;
 }
-
 
 .slot {
   background-color: white;
@@ -117,11 +113,7 @@
 
   width: fit-content;
   height: fit-content;
-
 }
-
-
-
 
 .disabled {
   background-color: #b9b9b9;
@@ -138,7 +130,7 @@
 
 .booked {
   background-color: red;
-  color:white;
+  color: white;
   border: none;
   cursor: not-allowed;
 }
@@ -174,7 +166,6 @@
 .book-btn {
   background-color: #f0f0f0;
   color: black;
-
 }
 
 .cancel-btn {
@@ -215,7 +206,7 @@
   width: 500px;
   height: 450px;
   border-radius: 10px;
-  border: 2px solid #00A000;
+  border: 2px solid #00a000;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -257,9 +248,7 @@
   margin-right: 10px;
 }
 
-
 .popup-row select,
-
 .time-display {
   background: white;
   color: black;
@@ -284,8 +273,6 @@
   font-weight: bold;
   font-size: 18px;
   text-align: center;
-
-
 }
 
 .otp-input {
@@ -324,13 +311,13 @@
 .popup-cancel {
   background: white;
   color: black;
-  border: 2px solid #40BA36;
+  border: 2px solid #40ba36;
   padding: 0px;
   margin: 0px;
 }
 
 .popup-confirm {
-  background: #40BA36;
+  background: #40ba36;
   color: black;
   border: none;
 }
@@ -392,7 +379,7 @@
   width: 110px;
   font-size: 18px;
   font-weight: 700;
-  background-color: #40BA36;
+  background-color: #40ba36;
   color: black;
   border: none;
   border-radius: 5px;
@@ -426,13 +413,10 @@
 
 /* MEDIA QUERIES */
 @media (max-width: 1024px) {
-
   .inner-inner {
     gap: 15px;
     padding: 10px;
   }
-
-
 
   .slot {
     width: 110px;
@@ -446,12 +430,6 @@
 
     grid-template-columns: repeat(4, 1fr);
   }
-
-  .slide-popup {
-    align-items: center;
-  }
-
-
 
   .slot {
     width: 95px;
@@ -488,6 +466,7 @@
     width: 90%;
     margin: 0 5%;
     padding: 15px;
+    align-items: center;
   }
 
   .login-prompt {
@@ -510,9 +489,7 @@
     height: 44px;
     padding: 10px 20px;
   }
-
 }
-
 
 @media (max-width: 480px) {
   .inner-inner {
@@ -543,7 +520,6 @@
     display: flex;
 
     justify-content: space-between;
-
   }
 
   .time-display,
@@ -557,7 +533,6 @@
   .popup-buttons {
     flex-direction: column;
     gap: 10px;
-
   }
 
   .popup-row {
@@ -596,7 +571,6 @@
     border-radius: 6px;
   }
 
-
   .final-confirm {
     width: 100px;
     font-size: 16px;
@@ -628,16 +602,11 @@
     font-weight: 700;
   }
 
-
-
   .slide-popup {
     border-radius: 12px;
     width: 90%;
     max-width: 350px;
     animation: fadeIn 0.3s ease-out;
-  }
-  
-  .slide-popup {
     width: 95%;
     margin: 0 2.5%;
     padding: 12px;
@@ -668,9 +637,6 @@
     padding: 8px 16px;
   }
 }
-
-
-
 
 /* Login Modal Styles */
 .login-prompt {
@@ -709,7 +675,7 @@
 }
 
 .login-btn {
-  background: #40BA36;
+  background: #40ba36;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -728,8 +694,8 @@
 
 .cancel-btn {
   background: white;
-  color: #40BA36;
-  border: 2px solid #40BA36;
+  color: #40ba36;
+  border: 2px solid #40ba36;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -743,12 +709,6 @@
 .cancel-btn:hover {
   background: #f0f9ef;
 }
-
-
-
-
-
-
 
 @keyframes fadeIn {
   from {
@@ -769,7 +729,7 @@
   width: 400px;
   height: auto;
   border-radius: 15px;
-  border: 2px solid #00A000;
+  border: 2px solid #00a000;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -800,7 +760,7 @@
 }
 
 .login-required-popup .login-btn {
-  background: #40BA36;
+  background: #40ba36;
   color: white;
   border: none;
   padding: 12px 30px;

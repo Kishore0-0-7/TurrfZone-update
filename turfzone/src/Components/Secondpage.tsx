@@ -15,9 +15,21 @@ const Secondpage = ({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [clickedDate, setClickedDate] = useState<Date | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0); // for image carousel
+  const [clickedDate, setClickedDate] = useState<Date>(today);
+  const [dateSlide, setDateSlide] = useState(0); // for date slider
+  const [daysPerSlide, setDaysPerSlide] = useState(getDaysPerSlide());
+
+  const maxDays = 15;
+
+  function getDaysPerSlide() {
+    const width = window.innerWidth;
+    if (width <= 360) return 3;
+    if (width <= 480) return 4;
+    return 5;
+  }
+
+  const totalSlides = Math.ceil(maxDays / (daysPerSlide || 1));
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,96 +38,47 @@ const Secondpage = ({
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setDaysPerSlide(getDaysPerSlide());
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const allDates: Date[] = Array.from({ length: maxDays }, (_, i) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    return date;
+  });
+
+  const visibleDates = allDates.slice(
+    dateSlide * daysPerSlide,
+    dateSlide * daysPerSlide + daysPerSlide
+  );
+
   const nextImage = () => setCurrentSlide((prev) => (prev + 1) % images.length);
   const prevImage = () =>
     setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
 
-  const nextWeek = () => {
-    const tentativeNext = new Date(selectedDate);
-    tentativeNext.setDate(selectedDate.getDate() + maxDays); // use maxDays here!
-
-    // If new date crosses to next month, reset to 1st of next month
-    if (tentativeNext.getMonth() !== selectedDate.getMonth()) {
-      const nextMonthStart = new Date(selectedDate);
-      nextMonthStart.setMonth(selectedDate.getMonth() + 1);
-      nextMonthStart.setDate(1);
-      setSelectedDate(nextMonthStart);
-    } else {
-      setSelectedDate(tentativeNext);
-    }
+  const nextDateSlide = () => {
+    if (dateSlide < totalSlides - 1) setDateSlide((prev) => prev + 1);
   };
 
-  const prevWeek = () => {
-    const newDate = new Date(selectedDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-    if (newDate >= today) {
-      setSelectedDate(newDate);
-    }
+  const prevDateSlide = () => {
+    if (dateSlide > 0) setDateSlide((prev) => prev - 1);
   };
-
-  const nextMonth = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setSelectedDate(newDate);
-  };
-
-  const prevMonth = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setMonth(newDate.getMonth() - 1);
-    if (newDate >= today) {
-      setSelectedDate(newDate);
-    }
-  };
-  const [maxDays, setMaxDays] = useState(() =>
-    window.innerWidth <= 480 ? 3 : 7
-  );
-  useEffect(() => {
-    const handleResize = () => {
-      setMaxDays(window.innerWidth <= 480 ? 3 : 7);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  const getWeekDates = () => {
-    const weekDates: Date[] = [];
-    const baseDate = new Date(selectedDate);
-    const currentMonth = baseDate.getMonth();
-
-    for (let i = 0; i < maxDays; i++) {
-      const date = new Date(baseDate);
-      date.setDate(baseDate.getDate() + i);
-
-      if (date.getMonth() !== currentMonth) break;
-
-      weekDates.push(date);
-    }
-
-    return weekDates;
-  };
-
-  useEffect(() => {
-    setClickedDate(today);
-  }, []);
-
-  const formatDate = (date: Date) => `${date.getDate()}`;
-  const isPastDate = (date: Date) => date < today;
 
   const handleDateClick = (date: Date) => {
-    if (isPastDate(date)) return;
     setClickedDate(date);
     onScrollToThirdPage(date);
   };
 
-  const weekDates = getWeekDates();
+  const isToday = (date: Date) => date.toDateString() === today.toDateString();
 
   return (
     <div className="container">
-      {/* Slider */}
+      {/* Image Slider */}
       <div className="slider">
         <button className="nav-btn nav-left" onClick={prevImage}>
           &#x276E;
@@ -140,41 +103,37 @@ const Secondpage = ({
         </button>
       </div>
 
-      {/* Month Navigation */}
+      {/* Month Label */}
       <div className="calendar-nav">
-        <button className="left-calendar" onClick={prevMonth}>
-          &#x276E;
-        </button>
         <span>
-          {selectedDate.toLocaleString("default", { month: "long" })}{" "}
-          {selectedDate.getFullYear()}
+          {clickedDate.toLocaleString("default", { month: "long" })}{" "}
+          {clickedDate.getFullYear()}
         </span>
-        <button className="right-calendar" onClick={nextMonth}>
-          &#x276F;
-        </button>
       </div>
 
-      {/* Week Navigation + Dates */}
+      {/* Date Slider */}
       <div className="calendar-nav weekdays-inside-nav">
-        <button className="left-calendar" onClick={prevWeek}>
+        <button
+          className="left-calendar"
+          onClick={prevDateSlide}
+          disabled={dateSlide === 0}
+        >
           &#x276E;
         </button>
 
         <div className="weekdays">
-          {weekDates.map((date, index) => {
-            const isPast = isPastDate(date);
+          {visibleDates.map((date, index) => {
             const isSelected =
               clickedDate?.toDateString() === date.toDateString();
-
             return (
               <div
                 key={index}
                 className={`day ${isSelected ? "selected" : ""} ${
-                  isPast ? "disabled" : ""
+                  isToday(date) ? "today" : ""
                 }`}
                 onClick={() => handleDateClick(date)}
               >
-                <span>{formatDate(date)}</span>
+                <span>{date.getDate()}</span>
                 <span>
                   {weekdays[date.getDay() === 0 ? 6 : date.getDay() - 1]}
                 </span>
@@ -183,7 +142,11 @@ const Secondpage = ({
           })}
         </div>
 
-        <button className="right-calendar" onClick={nextWeek}>
+        <button
+          className="right-calendar"
+          onClick={nextDateSlide}
+          disabled={dateSlide === totalSlides - 1}
+        >
           &#x276F;
         </button>
       </div>

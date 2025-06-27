@@ -13,7 +13,7 @@ declare global {
 }
 
 // API base URL
-const API_BASE_URL = "http://localhost:5125/api";
+const API_BASE_URL = "https://artechnology18.duckdns.org/api";
 
 function Login() {
   const [formData, setFormData] = useState({

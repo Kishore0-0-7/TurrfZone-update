@@ -299,6 +299,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
         currentUser.phoneNumber
       })`
     );
+    setShowOtpPopup(false);
     setStartSlotIndex(index);
     setShowEndTimePopup(true);
     setError(null); // Clear any previous errors
@@ -663,60 +664,64 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
             }}
           >
             <div className="slide-popup" onClick={(e) => e.stopPropagation()}>
-              <div>
-                <h2>Select End Time</h2>
+              <div className="slide-popup-in">
+                <div className="popup-h2">
+                  <h2>Select End Time</h2>
+                </div>
                 <div className="end-time-options">
                   {(() => {
                     const start = startSlotIndex + 1;
                     const endOptions = [];
-                    let availableCount = 0;
-                    let nonAvailableShown = false;
+                    let totalOptionsShown = 0;
+                    const maxOptions = 4;
 
-                    for (let i = start; i < slots.length; i++) {
+                    for (
+                      let i = start;
+                      i < slots.length && totalOptionsShown < maxOptions;
+                      i++
+                    ) {
                       const slot = slots[i];
+
                       if (slot.status === "available") {
-                        if (availableCount < 4) {
-                          endOptions.push(
-                            <div
-                              key={i}
-                              className="end-time-option"
-                              onClick={() => {
-                                // Check authentication before proceeding with selection
-                                if (!currentUser) {
-                                  setShowLoginRequiredPopup(true);
-                                  setShowEndTimePopup(false);
-                                  return;
-                                }
-
-                                const selected = [];
-
-                                // Select all slots from start to end (non-inclusive of end time)
-                                for (let j = startSlotIndex; j < i; j++) {
-                                  selected.push(j);
-                                }
-
-                                // Debug log the selection
-                                console.log(
-                                  `⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`
-                                );
-                                console.log(
-                                  `🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`
-                                );
-
-                                setSelectedSlots(selected);
-                                setEndSlotIndex(i);
+                        endOptions.push(
+                          <div
+                            key={i}
+                            className="end-time-option"
+                            onClick={() => {
+                              // Check authentication before proceeding with selection
+                              if (!currentUser) {
+                                setShowLoginRequiredPopup(true);
                                 setShowEndTimePopup(false);
-                                setShowPopup(true); // immediately trigger popup
-                              }}
-                            >
-                              {slot.time.replace(" (Next Day)", "")}
-                            </div>
-                          );
-                          availableCount++;
-                        } else {
-                          break;
-                        }
-                      } else if (!nonAvailableShown) {
+                                return;
+                              }
+
+                              const selected = [];
+
+                              // Select all slots from start to end (non-inclusive of end time)
+                              for (let j = startSlotIndex; j < i; j++) {
+                                selected.push(j);
+                              }
+
+                              // Debug log the selection
+                              console.log(
+                                `⏰ Selected slots from ${startSlotIndex} (${slots[startSlotIndex].time}) to ${i} (${slots[i].time})`
+                              );
+                              console.log(
+                                `🔄 Selected time range: ${slots[startSlotIndex].time} to ${slots[i].time}`
+                              );
+
+                              setSelectedSlots(selected);
+                              setEndSlotIndex(i);
+                              setShowEndTimePopup(false);
+                              setShowPopup(true); // immediately trigger popup
+                            }}
+                          >
+                            {slot.time.replace(" (Next Day)", "")}
+                          </div>
+                        );
+                        totalOptionsShown++;
+                      } else {
+                        // Show non-available slot and stop (as it blocks further selection)
                         endOptions.push(
                           <div
                             key={i}
@@ -755,7 +760,8 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                               : slot.time.replace(" (Next Day)", "")}
                           </div>
                         );
-                        nonAvailableShown = true;
+                        totalOptionsShown++;
+                        // Stop here as non-available slots block further selection
                         break;
                       }
                     }
@@ -763,19 +769,20 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                     return endOptions;
                   })()}
                 </div>
-
-                <button
-                  className="popup-cancel"
-                  onClick={() => {
-                    setShowEndTimePopup(false);
-                    setSelectedSlots([]); // Clear selected slots
-                    setStartSlotIndex(null); // Reset start slot
-                    setEndSlotIndex(null); // Reset end slot
-                    setError(null);
-                  }}
-                >
-                  Cancel
-                </button>
+                <div className="popup-btn">
+                  <button
+                    className="popup-cancel"
+                    onClick={() => {
+                      setShowEndTimePopup(false);
+                      setSelectedSlots([]); // Clear selected slots
+                      setStartSlotIndex(null); // Reset start slot
+                      setEndSlotIndex(null); // Reset end slot
+                      setError(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
