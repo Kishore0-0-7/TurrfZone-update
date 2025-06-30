@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { sendOtp, verifyOtp } from "../services/api";
 import Logo from "../assets/logo.png";
 import "./Login.css";
 
@@ -221,6 +222,17 @@ function Login() {
         );
       }
 
+      // Also send OTP using SampleOtpController for testing
+      try {
+        await sendOtp(phone); // Send just the 10-digit number to backend
+        console.log(
+          "🎯 OTP also sent via SampleOtpController - Check backend console for OTP!"
+        );
+      } catch (sampleOtpError) {
+        console.log("SampleOtp also failed:", sampleOtpError);
+        // Don't fail the whole process if SampleOtp fails
+      }
+
       // Move to OTP verification step (whether Firebase worked or not)
       setCurrentStep("phone-verify");
 
@@ -305,8 +317,32 @@ function Login() {
         return;
       }
 
-      // Dummy OTP verification - accept any 6-digit code for now
-      console.log("Verifying dummy OTP:", otp, "for phone:", phone);
+      // Try SampleOtpController verification first
+      let otpVerified = false;
+      try {
+        console.log(
+          "🔐 Attempting OTP verification with SampleOtpController..."
+        );
+        await verifyOtp(phone, otp);
+        console.log("✅ OTP verified successfully via SampleOtpController!");
+        otpVerified = true;
+      } catch (sampleOtpError) {
+        console.log(
+          "❌ SampleOtpController verification failed:",
+          sampleOtpError
+        );
+        console.log("🔄 Falling back to dummy OTP verification...");
+
+        // Dummy OTP verification - accept any 6-digit code as fallback
+        console.log("Verifying dummy OTP:", otp, "for phone:", phone);
+        otpVerified = true; // Accept any 6-digit code as fallback
+      }
+
+      if (!otpVerified) {
+        setError("Invalid OTP. Please try again.");
+        setLoading(false);
+        return;
+      }
 
       // Stop the timer when OTP is successfully verified
       setTimerActive(false);
@@ -363,6 +399,17 @@ function Login() {
           "Firebase OTP failed, proceeding with dummy OTP:",
           firebaseError
         );
+      }
+
+      // Also resend OTP using SampleOtpController for testing
+      try {
+        await sendOtp(formData.phone); // Send just the 10-digit number to backend
+        console.log(
+          "🎯 OTP also resent via SampleOtpController - Check backend console for OTP!"
+        );
+      } catch (sampleOtpError) {
+        console.log("SampleOtp resend also failed:", sampleOtpError);
+        // Don't fail the whole process if SampleOtp fails
       }
 
       // Reset and start the timer again

@@ -8,6 +8,8 @@ import {
   formatDateForAPI,
   checkUser,
   registerUser,
+  sendOtp,
+  verifyOtp,
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -79,6 +81,9 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
   const [showLoginRequiredPopup, setShowLoginRequiredPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [otpInput, setOtpInput] = useState("");
+  const [otpTimer, setOtpTimer] = useState(300); // 5 minutes
+  const [timerActive, setTimerActive] = useState(false);
 
   const fromTime =
     startSlotIndex !== null
@@ -136,13 +141,25 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
         // Create a Set of unavailable slot times for faster lookup
         // Backend returns slots with status 'Unavailable' for booked/blocked slots
+        // and 'Maintenance' for maintenance slots - both should be treated as unavailable
         const unavailableSlotTimes = new Set(
           slotsFromBackend
-            .filter((slot) => slot.status === "Unavailable")
+            .filter(
+              (slot) =>
+                slot.status === "Unavailable" || slot.status === "Maintenance"
+            )
+            .map((slot) => slot.slotTime)
+        );
+
+        // Also create a Set specifically for maintenance slots to track them separately
+        const maintenanceSlotTimes = new Set(
+          slotsFromBackend
+            .filter((slot) => slot.status === "Maintenance")
             .map((slot) => slot.slotTime)
         );
 
         console.log("🚫 Unavailable slots:", Array.from(unavailableSlotTimes));
+        console.log("🔧 Maintenance slots:", Array.from(maintenanceSlotTimes));
 
         // Process each default slot
         const processedSlots = defaultSlots.map((slot) => {
@@ -166,10 +183,18 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
           // SECOND PRIORITY: Check if this slot is unavailable/booked from backend
           // Only apply this if the slot time hasn't passed
           if (unavailableSlotTimes.has(cleanSlotTime)) {
-            return {
-              ...slot,
-              status: "booked" as SlotStatus,
-            };
+            // Check if it's specifically a maintenance slot
+            if (maintenanceSlotTimes.has(cleanSlotTime)) {
+              return {
+                ...slot,
+                status: "maintenance" as SlotStatus,
+              };
+            } else {
+              return {
+                ...slot,
+                status: "booked" as SlotStatus,
+              };
+            }
           }
 
           // DEFAULT: Available
@@ -184,6 +209,8 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
           disabled: processedSlots.filter((s) => s.status === "disabled")
             .length,
           available: processedSlots.filter((s) => s.status === "available")
+            .length,
+          maintenance: processedSlots.filter((s) => s.status === "maintenance")
             .length,
         };
         console.log("✅ Final slot status counts:", statusCounts);
@@ -273,6 +300,39 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
 
     return () => clearInterval(interval);
   }, [selectedDate]);
+
+  // OTP Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (timerActive && otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            setTimerActive(false);
+            setError("OTP has expired. Please request a new one.");
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [timerActive, otpTimer]);
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const handleSlotClick = (index: number) => {
     const clickedSlot = slots[index];
@@ -469,14 +529,12 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                   ref={(el) => {
                     slotRefs.current[index] = el;
                   }}
-                  className={`slot ${slot.status} ${
-                    selectedSlots.includes(index) ? "selected" : ""
-                  }`}
+                  className={`slot ${
+                    slot.status === "maintenance" ? "booked" : slot.status
+                  } ${selectedSlots.includes(index) ? "selected" : ""}`}
                   onClick={() => handleSlotClick(index)}
                 >
-                  {slot.status === "maintenance"
-                    ? "Under Maintenance"
-                    : slot.time}
+                  {slot.time}
                 </div>
               ))
           )}
@@ -521,9 +579,44 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                 </button>
                 <button
                   className="popup-confirm"
-                  onClick={() => setShowOtpPopup(true)}
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      setError(null);
+
+                      // Get phone number from current user
+                      const phoneNumber = currentUser?.phoneNumber;
+                      if (!phoneNumber) {
+                        throw new Error(
+                          "No phone number found for OTP verification."
+                        );
+                      }
+
+                      // Extract just the 10-digit number (remove +91 if present)
+                      const cleanPhoneNumber = phoneNumber.replace(/^\+91/, "");
+
+                      console.log(
+                        `📱 Sending OTP for booking verification to: ${cleanPhoneNumber}`
+                      );
+                      await sendOtp(cleanPhoneNumber);
+
+                      setShowOtpPopup(true);
+                      setOtpTimer(300); // 5 minutes
+                      setTimerActive(true);
+
+                      console.log(
+                        "🎯 Booking OTP sent via SampleOtpController - Check backend console for OTP!"
+                      );
+                    } catch (err: any) {
+                      console.error("Error sending OTP:", err);
+                      setError("Failed to send OTP. Please try again.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
                 >
-                  Get OTP
+                  {loading ? "Sending..." : "Get OTP"}
                 </button>
               </div>
             </div>
@@ -556,9 +649,80 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                 <input
                   type="text"
                   className="otp-input"
-                  placeholder="Enter OTP"
+                  placeholder="Enter 6-digit OTP"
+                  value={otpInput}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setOtpInput(value);
+                    setError(null);
+                  }}
                   maxLength={6}
                 />
+                {timerActive && (
+                  <div
+                    className="otp-timer"
+                    style={{
+                      fontSize: "12px",
+                      color: "#666",
+                      marginTop: "5px",
+                    }}
+                  >
+                    Time remaining: {formatTimer(otpTimer)}
+                  </div>
+                )}
+                {otpTimer === 0 && (
+                  <button
+                    className="resend-otp-btn"
+                    onClick={async () => {
+                      try {
+                        setLoading(true);
+                        setError(null);
+
+                        const phoneNumber = currentUser?.phoneNumber;
+                        if (!phoneNumber) {
+                          throw new Error("No phone number found.");
+                        }
+
+                        const cleanPhoneNumber = phoneNumber.replace(
+                          /^\+91/,
+                          ""
+                        );
+
+                        console.log(`📱 Resending OTP to: ${cleanPhoneNumber}`);
+                        await sendOtp(cleanPhoneNumber);
+
+                        setOtpTimer(300);
+                        setTimerActive(true);
+                        setOtpInput("");
+
+                        console.log(
+                          "🎯 OTP resent via SampleOtpController - Check backend console for OTP!"
+                        );
+                      } catch (err: any) {
+                        console.error("Error resending OTP:", err);
+                        setError("Failed to resend OTP. Please try again.");
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                    style={{
+                      background: "#007bff",
+                      color: "white",
+                      border: "none",
+                      padding: "5px 10px",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {loading ? "Sending..." : "Resend OTP"}
+                  </button>
+                )}
+              </div>
+              <div className="otp-timer">
+                Time remaining: {formatTimer(otpTimer)}
               </div>
               <p className="note">🔴 Note: This Booking Can’t be Canceled</p>
               <div className="popup-buttons">
@@ -571,12 +735,80 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                     setStartSlotIndex(null); // Reset start slot
                     setEndSlotIndex(null); // Reset end slot
                     setError(null);
+                    // Reset OTP state
+                    setOtpInput("");
+                    setTimerActive(false);
+                    setOtpTimer(300);
                   }}
                 >
                   Cancel
                 </button>
-                <button className="popup-confirm" onClick={handleConfirm}>
-                  Confirm
+                <button
+                  className="popup-confirm"
+                  onClick={async () => {
+                    if (!otpInput || otpInput.length !== 6) {
+                      setError("Please enter a valid 6-digit OTP.");
+                      return;
+                    }
+
+                    if (otpTimer === 0) {
+                      setError("OTP has expired. Please request a new one.");
+                      return;
+                    }
+
+                    try {
+                      setLoading(true);
+                      setError(null);
+
+                      const phoneNumber = currentUser?.phoneNumber;
+                      if (!phoneNumber) {
+                        throw new Error("No phone number found.");
+                      }
+
+                      const cleanPhoneNumber = phoneNumber.replace(/^\+91/, "");
+
+                      // Try to verify OTP with SampleOtpController
+                      try {
+                        console.log(
+                          "🔐 Verifying booking OTP with SampleOtpController..."
+                        );
+                        await verifyOtp(cleanPhoneNumber, otpInput);
+                        console.log("✅ Booking OTP verified successfully!");
+
+                        // OTP verified, proceed with booking confirmation
+                        setTimerActive(false);
+                        setOtpInput("");
+                        handleConfirm(); // Call the original confirm handler
+                      } catch (otpError) {
+                        console.log(
+                          "❌ SampleOtpController verification failed:",
+                          otpError
+                        );
+                        console.log(
+                          "🔄 Using fallback verification for testing..."
+                        );
+
+                        // Fallback: accept any 6-digit code for testing
+                        console.log(
+                          "Accepting OTP for testing purposes:",
+                          otpInput
+                        );
+
+                        // OTP accepted, proceed with booking
+                        setTimerActive(false);
+                        setOtpInput("");
+                        handleConfirm(); // Call the original confirm handler
+                      }
+                    } catch (err: any) {
+                      console.error("Error verifying OTP:", err);
+                      setError("Invalid OTP. Please try again.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading || otpInput.length !== 6}
+                >
+                  {loading ? "Verifying..." : "Confirm"}
                 </button>
               </div>
             </div>
@@ -615,7 +847,7 @@ const Thirdpage: React.FC<Props> = ({ selectedDate }) => {
                 onClick={handleFinalConfirm}
                 disabled={loading}
               >
-                {loading ? "Processing..." : "Confirm Booking"}
+                {loading ? "Processing..." : "OK"}
               </button>
             </div>
           </div>

@@ -1,5 +1,23 @@
 const API_BASE_URL = "https://artechnology18.duckdns.org/api"; // Remote backend server
 
+// OTP-related interfaces
+export interface OtpSendRequest {
+  phoneNumber: string;
+}
+
+export interface OtpSendResponse {
+  message: string;
+}
+
+export interface OtpVerifyRequest {
+  phoneNumber: string;
+  otp: string;
+}
+
+export interface OtpVerifyResponse {
+  message: string;
+}
+
 export interface SlotDto {
   slotId: number;
   slotDate: string;
@@ -306,6 +324,75 @@ export const updateUserName = async (
     return result;
   } catch (error) {
     console.error("Error updating user name:", error);
+    throw error;
+  }
+};
+
+// OTP Functions using SampleOtpController
+// Send OTP to phone number
+export const sendOtp = async (
+  phoneNumber: string
+): Promise<OtpSendResponse> => {
+  try {
+    console.log(`📱 Sending OTP to phone: ${phoneNumber}`);
+    const response = await fetch(`${API_BASE_URL}/SampleOtp/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phoneNumber: phoneNumber,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    console.log(
+      `✅ OTP sent successfully to ${phoneNumber}. Check console for OTP.`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    throw error;
+  }
+};
+
+// Verify OTP
+export const verifyOtp = async (
+  phoneNumber: string,
+  otp: string
+): Promise<OtpVerifyResponse> => {
+  try {
+    console.log(`🔐 Verifying OTP for phone: ${phoneNumber}, OTP: ${otp}`);
+    const response = await fetch(`${API_BASE_URL}/SampleOtp/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phoneNumber: phoneNumber,
+        otp: otp,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    console.log(`✅ OTP verified successfully for ${phoneNumber}`);
+    return result;
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
     throw error;
   }
 };
